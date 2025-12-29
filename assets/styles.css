@@ -1,0 +1,187 @@
+/* Oscar Finance Tracker - Custom Styles */
+
+/* Global Styles */
+body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background-color: #1E2A38;
+    color: #FFFFFF;
+}
+
+/* Hide Streamlit branding */
+#MainMenu {visibility: hidden;}
+footer {visibility: hidden;}
+header {visibility: hidden;}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #1E2A38;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #2C3E50;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #FF9800;
+}
+
+/* Button styles */
+.stButton > button {
+    border-radius: 8px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.stButton > button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(255, 152, 0, 0.3);
+}
+
+/* Input styles */
+.stTextInput > div > div > input,
+.stTextArea > div > div > textarea,
+.stSelectbox > div > div > select {
+    background-color: #2C3E50;
+    border: 1px solid #3A4F63;
+    border-radius: 8px;
+    color: #FFFFFF;
+}
+
+.stTextInput > div > div > input:focus,
+.stTextArea > div > div > textarea:focus {
+    border-color: #FF9800;
+    box-shadow: 0 0 0 2px rgba(255, 152, 0, 0.2);
+}
+
+/* Card styles */
+.css-1r6slb0 {
+    background-color: #2C3E50;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+/* Metric styles */
+.css-1xarl3l {
+    background-color: #2C3E50;
+    border-radius: 10px;
+    padding: 15px;
+}
+
+/* Sidebar styles */
+.css-1d391kg {
+    background-color: #1E2A38;
+}
+
+/* Tab styles */
+.stTabs [data-baseweb="tab-list"] {
+    gap: 10px;
+}
+
+.stTabs [data-baseweb="tab"] {
+    background-color: #2C3E50;
+    border-radius: 8px 8px 0 0;
+    color: #888;
+    padding: 12px 24px;
+}
+
+.stTabs [aria-selected="true"] {
+    background-color: #FF9800;
+    color: #FFFFFF;
+}
+
+/* Form styles */
+.stForm {
+    background-color: #2C3E50;
+    border-radius: 10px;
+    padding: 20px;
+}
+
+/* Alert styles */
+.stAlert {
+    border-radius: 8px;
+}
+
+/* Success message */
+.stSuccess {
+    background-color: rgba(76, 175, 80, 0.1);
+    border-left: 4px solid #4CAF50;
+}
+
+/* Error message */
+.stError {
+    background-color: rgba(244, 67, 54, 0.1);
+    border-left: 4px solid #F44336;
+}
+
+/* Info message */
+.stInfo {
+    background-color: rgba(255, 152, 0, 0.1);
+    border-left: 4px solid #FF9800;
+}
+
+/* Expander styles */
+.streamlit-expanderHeader {
+    background-color: #2C3E50;
+    border-radius: 8px;
+}
+
+/* Dataframe styles */
+.dataframe {
+    background-color: #2C3E50;
+    color: #FFFFFF;
+}
+
+/* Progress bar */
+.stProgress > div > div > div > div {
+    background-color: #FF9800;
+}
+
+/* Checkbox */
+.stCheckbox > label {
+    color: #FFFFFF;
+}
+
+/* Radio buttons */
+.stRadio > label {
+    color: #FFFFFF;
+}
+
+/* Date input */
+.stDateInput > div > div > input {
+    background-color: #2C3E50;
+    color: #FFFFFF;
+    border: 1px solid #3A4F63;
+    border-radius: 8px;
+}
+
+/* File uploader */
+.stFileUploader {
+    background-color: #2C3E50;
+    border-radius: 8px;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .stButton > button {
+        font-size: 14px;
+        padding: 8px 16px;
+    }
+    
+    h1 {
+        font-size: 24px;
+    }
+    
+    h2 {
+        font-size: 20px;
+    }
+    
+    h3 {
+        font-size: 18px;
+    }
+}
