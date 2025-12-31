@@ -1,84 +1,41 @@
 """Configuration settings for Oscar Finance Tracker."""
 import os
 from dotenv import load_dotenv
+import streamlit as st
 
-# Force reload environment variables
-load_dotenv(override=True)
+# Load environment variables from .env file (for local development)
+load_dotenv()
 
-# Database Configuration
-DATABASE_NAME = os.getenv('DATABASE_NAME', 'oscar_finance.db')
+# Get configuration from environment variables or Streamlit secrets
+def get_config(key, default=None):
+    """Get config from environment or Streamlit secrets."""
+    # First try environment variable
+    value = os.getenv(key)
+    if value:
+        return value
+    
+    # Then try Streamlit secrets (for cloud deployment)
+    try:
+        if hasattr(st, 'secrets') and key in st.secrets:
+            return st.secrets[key]
+    except:
+        pass
+    
+    return default
 
-# Security Configuration
-SECRET_KEY = os.getenv('SECRET_KEY')
-ENCRYPTION_KEY = os.getenv('ENCRYPTION_KEY')
+# Application settings
+APP_NAME = "OSCAR"
+APP_URL = get_config("APP_URL", "http://localhost:8501")
+DATABASE_NAME = "oscar.db"
 
-if not SECRET_KEY:
-    raise ValueError("SECRET_KEY must be set in .env file")
+# Email settings (for verification emails)
+EMAIL_USER = get_config("EMAIL_USER", "")
+EMAIL_PASSWORD = get_config("EMAIL_PASSWORD", "")
+SMTP_SERVER = get_config("SMTP_SERVER", "smtp.gmail.com")
+SMTP_PORT = int(get_config("SMTP_PORT", "587"))
 
-# Email Configuration
-SMTP_SERVER = os.getenv('SMTP_SERVER', 'smtp.gmail.com')
-SMTP_PORT = int(os.getenv('SMTP_PORT', 587))
-EMAIL_USER = os.getenv('EMAIL_USER')
-EMAIL_PASSWORD = os.getenv('EMAIL_PASSWORD')
-
-# Validate email configuration
-if not EMAIL_USER or not EMAIL_PASSWORD:
-    print("WARNING: EMAIL_USER or EMAIL_PASSWORD not set in .env file")
-    print(f"Current EMAIL_USER: {EMAIL_USER}")
-    print("Email verification will not work!")
-
-# Application Configuration
-APP_URL = os.getenv('APP_URL', 'http://localhost:8501')
-APP_NAME = "Oscar Finance Tracker"
-
-# Session Configuration
-SESSION_TIMEOUT = 3600  # 1 hour in seconds
-
-# UI Configuration
-CATEGORIES = [
-    "Bills & Rents",
-    "Education",
-    "Entertainment",
-    "Food & Dining",
-    "Groceries",
-    "Healthcare",
-    "Personal Care",
-    "Shopping",
-    "Transportation",
-    "Travel",
-    "Other"
-]
-
-REMINDER_TYPES = [
-    "Salary Day",
-    "Rent Payment",
-    "EMI Payment",
-    "Bill Payment",
-    "Subscription",
-    "Shopping",
-    "Other"
-]
-
-CURRENCIES = {
-    "USD": "$",
-    "EUR": "€",
-    "GBP": "£",
-    "INR": "₹",
-    "JPY": "¥"
-}
-
-# Payment Methods
-PAYMENT_METHODS = [
-    "Cash",
-    "Credit Card",
-    "Debit Card",
-    "UPI",
-    "Net Banking",
-    "Other"
-]
-
-# Print configuration for debugging (remove in production)
-print(f"[CONFIG] EMAIL_USER: {EMAIL_USER}")
-print(f"[CONFIG] SMTP_SERVER: {SMTP_SERVER}")
-print(f"[CONFIG] SMTP_PORT: {SMTP_PORT}")
-print(f"[CONFIG] APP_URL: {APP_URL}")
+# Print config status (for debugging)
+print("[CONFIG] EMAIL_USER:", EMAIL_USER if EMAIL_USER else "Not configured")
+print("[CONFIG] SMTP_SERVER:", SMTP_SERVER)
+print("[CONFIG] SMTP_PORT:", SMTP_PORT)
+print("[CONFIG] APP_URL:", APP_URL)
