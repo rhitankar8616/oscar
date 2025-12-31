@@ -57,13 +57,13 @@ st.markdown("""
         max-width: 1400px !important;
     }
     
-    /* Headers - Base44 style */
+    /* Headers - Base44 style with BLUE gradient */
     h1 {
         color: #ffffff !important;
         font-weight: 700 !important;
         letter-spacing: -0.02em !important;
         font-size: 2.5rem !important;
-        background: linear-gradient(135deg, #ffffff 0%, #00ffaa 100%);
+        background: linear-gradient(135deg, #ffffff 0%, #3b82f6 100%);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
         background-clip: text;
@@ -106,7 +106,7 @@ st.markdown("""
     
     [data-testid="stMetric"]:hover {
         background: rgba(30, 45, 65, 0.7) !important;
-        border-color: rgba(255, 144, 0, 0.2) !important;
+        border-color: rgba(59, 130, 246, 0.3) !important;
         transform: translateY(-2px);
         box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     }
@@ -146,8 +146,8 @@ st.markdown("""
     .stSelectbox > div > div > div:focus,
     .stDateInput > div > div > input:focus,
     .stTextArea textarea:focus {
-        border-color: #00ffaa !important;
-        box-shadow: 0 0 0 2px rgba(0, 255, 170, 0.2) !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
         background: rgba(255, 255, 255, 0.08) !important;
     }
     
@@ -265,9 +265,9 @@ st.markdown("""
     }
     
     .stTabs [aria-selected="true"] {
-        background: rgba(0, 255, 170, 0.15) !important;
-        color: #00ffaa !important;
-        box-shadow: 0 0 20px rgba(0, 255, 170, 0.2);
+        background: rgba(59, 130, 246, 0.15) !important;
+        color: #3b82f6 !important;
+        box-shadow: 0 0 20px rgba(59, 130, 246, 0.2);
     }
     
     /* Data frames / tables */
@@ -325,7 +325,7 @@ st.markdown("""
     }
     
     [role="option"]:hover {
-        background: rgba(0, 212, 170, 0.1) !important;
+        background: rgba(59, 130, 246, 0.1) !important;
     }
     
     /* Expander styling */
@@ -342,7 +342,7 @@ st.markdown("""
     
     .streamlit-expanderHeader:hover {
         background: rgba(30, 45, 65, 0.8) !important;
-        border-color: rgba(0, 212, 170, 0.3) !important;
+        border-color: rgba(59, 130, 246, 0.3) !important;
     }
     
     .streamlit-expanderHeader p {
@@ -360,7 +360,7 @@ st.markdown("""
     
     /* Progress bar */
     .stProgress > div > div > div > div {
-        background: linear-gradient(90deg, #00ffaa 0%, #00d4aa 100%) !important;
+        background: linear-gradient(90deg, #3b82f6 0%, #60a5fa 100%) !important;
         border-radius: 8px;
     }
     
@@ -394,7 +394,7 @@ st.markdown("""
     }
     
     [data-testid="stFileUploader"]:hover {
-        border-color: rgba(0, 255, 170, 0.5) !important;
+        border-color: rgba(59, 130, 246, 0.5) !important;
         background: rgba(255, 255, 255, 0.06) !important;
     }
     
@@ -416,12 +416,12 @@ st.markdown("""
     }
     
     ::-webkit-scrollbar-thumb {
-        background: rgba(0, 255, 170, 0.3);
+        background: rgba(59, 130, 246, 0.3);
         border-radius: 5px;
     }
     
     ::-webkit-scrollbar-thumb:hover {
-        background: rgba(0, 255, 170, 0.5);
+        background: rgba(59, 130, 246, 0.5);
     }
     
     /* Divider */
@@ -432,8 +432,8 @@ st.markdown("""
     
     /* Code blocks */
     code {
-        background: rgba(0, 255, 170, 0.1) !important;
-        color: #00ffaa !important;
+        background: rgba(59, 130, 246, 0.1) !important;
+        color: #3b82f6 !important;
         padding: 2px 6px !important;
         border-radius: 6px !important;
         font-family: 'JetBrains Mono', monospace !important;
@@ -490,11 +490,11 @@ def initialize_session_state():
 def render_sidebar(user: dict):
     """Render sidebar navigation - Base44 style with vertical navigation list"""
     
-    # Logo and tagline at top with gradient styling (using HTML for guaranteed styling)
+    # Logo and tagline at top with BLUE gradient styling
     st.sidebar.markdown("""
         <div style="padding: 0 0 24px 0; font-family: 'Inter', sans-serif;">
             <h1 style="font-size: 1.8rem; font-weight: 700; margin: 0; font-family: 'Inter', sans-serif;
-                background: linear-gradient(135deg, #ffffff 0%, #00ffaa 100%);
+                background: linear-gradient(135deg, #ffffff 0%, #3b82f6 100%);
                 -webkit-background-clip: text; -webkit-text-fill-color: transparent;
                 background-clip: text;">OSCAR</h1>
             <p style="color: rgba(255,255,255,0.4); font-size: 0.7rem; font-weight: 400; 
@@ -529,7 +529,6 @@ def render_sidebar(user: dict):
         st.sidebar.markdown('</div>', unsafe_allow_html=True)
     
     # Create container for bottom section - using empty space
-    # Add significant spacing to push user info to bottom
     st.sidebar.markdown("""
         <div style="height: 120px;"></div>
     """, unsafe_allow_html=True)
