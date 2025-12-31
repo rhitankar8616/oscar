@@ -12,12 +12,12 @@ from components.profile import render_profile
 # Page config
 st.set_page_config(
     page_title="OSCAR - Smart Expense Tracker",
-    page_icon="💰",
+    page_icon="O",
     layout="wide",
     initial_sidebar_state="expanded"
 )
 
-# Custom CSS for modern, classy AI-like design
+# Custom CSS for modern, classy design matching Base44 style
 st.markdown("""
 <style>
     /* Import modern fonts */
@@ -33,55 +33,90 @@ st.markdown("""
         background: linear-gradient(135deg, #1a2332 0%, #2d3e50 100%);
     }
     
-    /* Sidebar styling - darker navy */
-    [data-testid="stSidebar"] {
+    /* Sidebar styling - darker navy like Base44 */
+    section[data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%) !important;
-        backdrop-filter: blur(20px);
         border-right: 1px solid rgba(255, 255, 255, 0.05);
+        min-width: 240px !important;
+        width: 240px !important;
     }
     
-    [data-testid="stSidebar"] > div:first-child {
+    section[data-testid="stSidebar"] > div {
         background: transparent !important;
+        padding-top: 1.5rem !important;
     }
     
-    /* Sidebar navigation items - minimal icon style */
-    [data-testid="stSidebar"] .stRadio > label {
-        background: transparent !important;
-        border: none !important;
-        border-radius: 12px !important;
-        padding: 12px 16px !important;
-        margin: 4px 0 !important;
-        transition: all 0.2s ease;
-        cursor: pointer !important;
-    }
-    
-    [data-testid="stSidebar"] .stRadio > label:hover {
-        background: rgba(255, 255, 255, 0.05) !important;
-        transform: translateX(4px);
-    }
-    
-    /* Remove radio button circles */
-    [data-testid="stSidebar"] .stRadio > label > div:first-child {
+    /* Hide radio button label text "Navigation" */
+    section[data-testid="stSidebar"] .stRadio > label:first-of-type {
         display: none !important;
     }
     
-    /* Selected navigation item */
-    [data-testid="stSidebar"] .stRadio input:checked + div {
-        background: rgba(255, 144, 0, 0.15) !important;
-        border-left: 3px solid #FF9000 !important;
-        padding-left: 13px !important;
+    /* Navigation container */
+    section[data-testid="stSidebar"] .stRadio > div {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
     }
     
-    /* Navigation text */
-    [data-testid="stSidebar"] .stRadio label p {
-        color: rgba(255, 255, 255, 0.7) !important;
-        font-size: 0.95rem !important;
+    /* Navigation items - Base44 style */
+    section[data-testid="stSidebar"] .stRadio > div > label {
+        background: transparent !important;
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        margin: 2px 12px !important;
+        transition: all 0.2s ease !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+    }
+    
+    section[data-testid="stSidebar"] .stRadio > div > label:hover {
+        background: rgba(255, 255, 255, 0.06) !important;
+    }
+    
+    /* Hide the radio circle completely */
+    section[data-testid="stSidebar"] .stRadio > div > label > div:first-child {
+        display: none !important;
+    }
+    
+    /* Navigation text styling */
+    section[data-testid="stSidebar"] .stRadio > div > label p {
+        color: rgba(255, 255, 255, 0.55) !important;
+        font-size: 0.9rem !important;
         font-weight: 400 !important;
+        margin: 0 !important;
+        padding: 0 !important;
     }
     
-    [data-testid="stSidebar"] .stRadio input:checked ~ div p {
+    /* Selected navigation item - orange highlight like Base44 */
+    section[data-testid="stSidebar"] .stRadio > div > label[data-checked="true"],
+    section[data-testid="stSidebar"] .stRadio > div > label:has(input:checked) {
+        background: rgba(255, 144, 0, 0.12) !important;
+    }
+    
+    section[data-testid="stSidebar"] .stRadio > div > label[data-checked="true"] p,
+    section[data-testid="stSidebar"] .stRadio > div > label:has(input:checked) p {
         color: #FF9000 !important;
         font-weight: 500 !important;
+    }
+    
+    /* Logout button styling */
+    section[data-testid="stSidebar"] .logout-btn button {
+        background: rgba(255, 100, 100, 0.08) !important;
+        color: #ff6b6b !important;
+        border: 1px solid rgba(255, 100, 100, 0.15) !important;
+        border-radius: 8px !important;
+        padding: 10px 16px !important;
+        font-size: 0.85rem !important;
+        font-weight: 500 !important;
+        transition: all 0.2s ease !important;
+        width: 100% !important;
+    }
+    
+    section[data-testid="stSidebar"] .logout-btn button:hover {
+        background: rgba(255, 100, 100, 0.15) !important;
+        border-color: rgba(255, 100, 100, 0.3) !important;
     }
     
     /* Main content area */
@@ -309,7 +344,7 @@ st.markdown("""
         background: rgba(0, 212, 170, 0.15) !important;
     }
     
-    /* Expander text visibility - NO OVERLAPPING */
+    /* Expander styling */
     .streamlit-expanderHeader {
         background: rgba(30, 45, 65, 0.6) !important;
         border: 1px solid rgba(255, 255, 255, 0.08) !important;
@@ -391,8 +426,8 @@ st.markdown("""
         background: rgba(255, 255, 255, 0.06) !important;
     }
     
-    /* Checkbox and radio */
-    .stCheckbox, .stRadio {
+    /* Checkbox and radio (not in sidebar) */
+    .main .stCheckbox, .main .stRadio {
         color: rgba(255, 255, 255, 0.85) !important;
     }
     
@@ -472,11 +507,6 @@ st.markdown("""
         transition: all 0.3s ease;
     }
     
-    /* Logo/Header styling */
-    [data-testid="stSidebarNav"] {
-        padding-top: 2rem !important;
-    }
-    
     /* Remove Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
@@ -484,24 +514,21 @@ st.markdown("""
     
     /* Mobile responsiveness */
     @media (max-width: 768px) {
-        /* Sidebar becomes collapsible */
-        [data-testid="stSidebar"] {
+        section[data-testid="stSidebar"] {
+            min-width: 100% !important;
             width: 100% !important;
         }
         
-        /* Adjust padding for mobile */
         .block-container {
             padding: 1rem !important;
         }
         
-        /* Stack columns on mobile */
         [data-testid="column"] {
             width: 100% !important;
             padding: 0 !important;
             margin-bottom: 1rem;
         }
         
-        /* Reduce font sizes on mobile */
         h1 {
             font-size: 1.8rem !important;
         }
@@ -510,53 +537,13 @@ st.markdown("""
             font-size: 1.2rem !important;
         }
         
-        /* Make buttons full width on mobile */
         .stButton > button {
             width: 100% !important;
         }
         
-        /* Adjust metric cards for mobile */
         [data-testid="stMetric"] {
             padding: 15px !important;
         }
-    }
-    
-    /* Sidebar logo and tagline styling */
-    [data-testid="stSidebar"] h1 {
-        text-align: left !important;
-        margin-bottom: 0.3rem !important;
-        font-size: 1.8rem !important;
-        color: #ffffff !important;
-        font-weight: 700 !important;
-    }
-    
-    [data-testid="stSidebar"] .tagline {
-        text-align: left !important;
-        color: rgba(255, 255, 255, 0.5) !important;
-        font-size: 0.75rem !important;
-        font-weight: 400 !important;
-        letter-spacing: 0.1em;
-        margin-bottom: 2rem !important;
-        text-transform: uppercase;
-    }
-    
-    /* Logout button styling - at bottom */
-    [data-testid="stSidebar"] .logout-section {
-        margin-top: auto;
-        padding-top: 2rem;
-        border-top: 1px solid rgba(255, 255, 255, 0.05);
-    }
-    
-    [data-testid="stSidebar"] .logout-section button {
-        background: rgba(255, 80, 80, 0.1) !important;
-        color: #ff5050 !important;
-        border: 1px solid rgba(255, 80, 80, 0.3) !important;
-        transition: all 0.2s ease;
-    }
-    
-    [data-testid="stSidebar"] .logout-section button:hover {
-        background: rgba(255, 80, 80, 0.2) !important;
-        border-color: #ff5050 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -567,37 +554,64 @@ def initialize_session_state():
         st.session_state.authenticated = False
     if 'user' not in st.session_state:
         st.session_state.user = None
+    if 'current_page' not in st.session_state:
+        st.session_state.current_page = "Dashboard"
 
 def render_sidebar(user: dict):
-    """Render sidebar navigation - Base44 style with icons"""
+    """Render sidebar navigation - Base44 style with clean minimal design"""
     with st.sidebar:
-        # Logo and tagline
-        st.markdown("# OSCAR")
-        st.markdown('<p class="tagline">Track. Save. Review.</p>', unsafe_allow_html=True)
+        # Logo and tagline at top
+        st.markdown("""
+            <div style="padding: 0 16px; margin-bottom: 2.5rem;">
+                <h1 style="font-size: 1.8rem; font-weight: 700; color: #ffffff; margin: 0; 
+                    background: none; -webkit-text-fill-color: #ffffff;">OSCAR</h1>
+                <p style="color: rgba(255,255,255,0.4); font-size: 0.7rem; font-weight: 400; 
+                    letter-spacing: 0.15em; text-transform: uppercase; margin-top: 4px;">
+                    Track. Save. Review.</p>
+            </div>
+        """, unsafe_allow_html=True)
         
-        st.markdown("<br>", unsafe_allow_html=True)
-        
-        # Navigation with icons (using Unicode symbols)
+        # Navigation options - clean text labels
         page = st.radio(
-            "Navigate",
-            [
-                "📊  Dashboard",
-                "💰  Expenses", 
-                "📅  Dates",
-                "💳  Budget Tracker",
-                "👥  Friends",
-                "📈  Analytics",
-                "👤  Profile"
+            "Navigation",
+            options=[
+                "Dashboard",
+                "Expenses",
+                "Dates",
+                "Budget Tracker",
+                "Friends",
+                "Analytics",
+                "Profile"
             ],
-            label_visibility="collapsed"
+            label_visibility="collapsed",
+            key="nav_radio"
         )
         
-        # Spacer - fills remaining space
-        st.markdown('<div style="flex-grow: 1; min-height: 200px;"></div>', unsafe_allow_html=True)
+        # Spacer to push logout to bottom
+        st.markdown("""<div style="flex-grow: 1; min-height: 180px;"></div>""", unsafe_allow_html=True)
         
-        # Logout at bottom
-        st.markdown('<div class="logout-section">', unsafe_allow_html=True)
-        if st.button("🚪 Logout", use_container_width=True, key="logout_btn"):
+        # User info section at bottom
+        if user:
+            first_name = user.get('first_name', 'User')
+            email = user.get('email', '')
+            initial = first_name[0].upper() if first_name else 'U'
+            display_email = email[:22] + '...' if len(email) > 22 else email
+            
+            st.markdown(f"""
+                <div style="padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.05); margin-bottom: 8px;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #3b82f6, #6366f1); 
+                            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+                            color: white; font-weight: 600; font-size: 13px; flex-shrink: 0;">{initial}</div>
+                        <p style="color: rgba(255,255,255,0.45); font-size: 0.72rem; margin: 0; 
+                            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{display_email}</p>
+                    </div>
+                </div>
+            """, unsafe_allow_html=True)
+        
+        # Logout button
+        st.markdown('<div class="logout-btn" style="padding: 0 12px 16px 12px;">', unsafe_allow_html=True)
+        if st.button("Logout", use_container_width=True, key="logout_btn"):
             st.session_state.authenticated = False
             st.session_state.user = None
             st.rerun()
@@ -610,19 +624,19 @@ def render_main_content(user: dict):
     db = DatabaseManager()
     page = render_sidebar(user)
     
-    if page == "📊  Dashboard":
+    if page == "Dashboard":
         render_dashboard(user, db)
-    elif page == "💰  Expenses":
+    elif page == "Expenses":
         render_expenses(user, db)
-    elif page == "📅  Dates":
+    elif page == "Dates":
         render_dates(user, db)
-    elif page == "💳  Budget Tracker":
+    elif page == "Budget Tracker":
         render_budget(user, db)
-    elif page == "👥  Friends":
+    elif page == "Friends":
         render_friends(user, db)
-    elif page == "📈  Analytics":
+    elif page == "Analytics":
         render_analytics(user, db)
-    elif page == "👤  Profile":
+    elif page == "Profile":
         render_profile(user, db)
 
 def main():
