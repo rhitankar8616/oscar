@@ -31,8 +31,19 @@ def render_auth():
     col1, col2, col3 = st.columns([1, 2, 1])
     
     with col2:
-        st.markdown("<h1 style='text-align: center;'>OSCAR</h1>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 0.9rem; margin-bottom: 3rem; text-transform: uppercase; letter-spacing: 0.2em; font-weight: 400;'>Track. Save. Review.</p>", unsafe_allow_html=True)
+        # OSCAR with letter spacing and blue gradient
+        st.markdown("""
+            <h1 style='text-align: center; font-size: 3rem; font-weight: 700; 
+                letter-spacing: 0.3em; margin-bottom: 0.5rem;
+                background: linear-gradient(135deg, #ffffff 0%, #3b82f6 100%);
+                -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+                background-clip: text; font-family: Inter, sans-serif;'>O S C A R</h1>
+        """, unsafe_allow_html=True)
+        st.markdown("""
+            <p style='text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 0.9rem; 
+                margin-bottom: 3rem; text-transform: uppercase; letter-spacing: 0.2em; 
+                font-weight: 400; font-family: Inter, sans-serif;'>Track. Save. Review.</p>
+        """, unsafe_allow_html=True)
         
         # Create tabs for login and register
         tab1, tab2 = st.tabs(["Login", "Register"])
