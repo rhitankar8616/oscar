@@ -31,7 +31,7 @@ def render_auth():
     
     with col2:
         st.markdown("<h1 style='text-align: center;'>OSCAR</h1>", unsafe_allow_html=True)
-        st.markdown("<p style='text-align: center; color: rgba(0, 212, 170, 0.8); font-size: 1rem; margin-bottom: 3rem; text-transform: uppercase; letter-spacing: 0.2em; font-weight: 500;'>Save. Spend. Track.</p>", unsafe_allow_html=True)
+        st.markdown("<p style='text-align: center; color: rgba(255, 255, 255, 0.5); font-size: 0.9rem; margin-bottom: 3rem; text-transform: uppercase; letter-spacing: 0.2em; font-weight: 400;'>Track. Save. Review.</p>", unsafe_allow_html=True)
         
         # Create tabs for login and register
         tab1, tab2 = st.tabs(["Login", "Register"])
