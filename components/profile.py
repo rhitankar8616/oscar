@@ -167,16 +167,19 @@ def render_account_settings(user: dict, db: DatabaseManager):
     
     st.markdown("---")
     
-    # Danger zone
-    st.markdown("#### Danger Zone")
+    # Delete Account section
+    st.markdown("#### Delete Account")
     
-    with st.expander("⚠️ Delete Account"):
-        st.warning("This action cannot be undone. All your data will be permanently deleted.")
+    with st.expander("⚠️ Permanently Delete Your Account"):
+        st.markdown("**Warning:** This action cannot be undone. All your data will be permanently deleted.")
+        st.markdown("")
         
         confirm_text = st.text_input(
             "Type 'DELETE' to confirm",
             key="delete_confirm"
         )
+        
+        st.markdown("")
         
         if st.button("Delete My Account", type="primary", use_container_width=True):
             if confirm_text == "DELETE":
