@@ -28,38 +28,36 @@ st.markdown("""
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
     }
     
-    /* Main app background - dark with subtle gradient */
+    /* Main app background - navy blue gradient */
     .stApp {
-        background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 100%);
+        background: linear-gradient(135deg, #1a2332 0%, #2d3e50 100%);
     }
     
-    /* Sidebar styling - glassmorphism effect */
+    /* Sidebar styling - darker navy */
     [data-testid="stSidebar"] {
-        background: rgba(20, 20, 20, 0.8) !important;
+        background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%) !important;
         backdrop-filter: blur(20px);
-        border-right: 1px solid rgba(255, 255, 255, 0.1);
+        border-right: 1px solid rgba(255, 255, 255, 0.05);
     }
     
     [data-testid="stSidebar"] > div:first-child {
         background: transparent !important;
     }
     
-    /* Sidebar navigation items */
+    /* Sidebar navigation items - minimal icon style */
     [data-testid="stSidebar"] .stRadio > label {
-        background: rgba(255, 255, 255, 0.03) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 12px;
-        padding: 14px 18px !important;
-        margin: 6px 0 !important;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        backdrop-filter: blur(10px);
+        background: transparent !important;
+        border: none !important;
+        border-radius: 12px !important;
+        padding: 12px 16px !important;
+        margin: 4px 0 !important;
+        transition: all 0.2s ease;
+        cursor: pointer !important;
     }
     
     [data-testid="stSidebar"] .stRadio > label:hover {
-        background: rgba(255, 255, 255, 0.08) !important;
-        border-color: rgba(0, 255, 170, 0.3);
+        background: rgba(255, 255, 255, 0.05) !important;
         transform: translateX(4px);
-        box-shadow: 0 4px 16px rgba(0, 255, 170, 0.1);
     }
     
     /* Remove radio button circles */
@@ -67,11 +65,23 @@ st.markdown("""
         display: none !important;
     }
     
-    /* Selected navigation item - no border, just background glow */
+    /* Selected navigation item */
     [data-testid="stSidebar"] .stRadio input:checked + div {
-        background: linear-gradient(135deg, rgba(0, 255, 170, 0.15) 0%, rgba(0, 212, 170, 0.1) 100%) !important;
-        border: none !important;
-        box-shadow: 0 0 20px rgba(0, 255, 170, 0.2) !important;
+        background: rgba(255, 144, 0, 0.15) !important;
+        border-left: 3px solid #FF9000 !important;
+        padding-left: 13px !important;
+    }
+    
+    /* Navigation text */
+    [data-testid="stSidebar"] .stRadio label p {
+        color: rgba(255, 255, 255, 0.7) !important;
+        font-size: 0.95rem !important;
+        font-weight: 400 !important;
+    }
+    
+    [data-testid="stSidebar"] .stRadio input:checked ~ div p {
+        color: #FF9000 !important;
+        font-weight: 500 !important;
     }
     
     /* Main content area */
@@ -106,21 +116,21 @@ st.markdown("""
         color: rgba(255, 255, 255, 0.85) !important;
     }
     
-    /* Metric cards - glassmorphism */
+    /* Metric cards - navy blue boxes style */
     [data-testid="stMetric"] {
-        background: rgba(255, 255, 255, 0.04) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08);
-        border-radius: 16px;
-        padding: 20px !important;
+        background: rgba(30, 45, 65, 0.5) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-radius: 16px !important;
+        padding: 24px !important;
         backdrop-filter: blur(10px);
         transition: all 0.3s ease;
     }
     
     [data-testid="stMetric"]:hover {
-        background: rgba(255, 255, 255, 0.06) !important;
-        border-color: rgba(0, 255, 170, 0.3);
+        background: rgba(30, 45, 65, 0.7) !important;
+        border-color: rgba(255, 144, 0, 0.2) !important;
         transform: translateY(-2px);
-        box-shadow: 0 8px 24px rgba(0, 255, 170, 0.15);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
     }
     
     [data-testid="stMetric"] label {
@@ -162,18 +172,18 @@ st.markdown("""
         background: rgba(255, 255, 255, 0.08) !important;
     }
     
-    /* Buttons - primary (reduced fluorescence) */
+    /* Buttons - primary (orange accent like Base44) */
     .stButton > button[kind="primary"],
     .stDownloadButton > button {
-        background: linear-gradient(135deg, #00d4aa 0%, #00b89d 100%) !important;
-        color: #000000 !important;
+        background: linear-gradient(135deg, #FF9000 0%, #FF7A00 100%) !important;
+        color: #ffffff !important;
         border: none !important;
         border-radius: 12px !important;
         padding: 12px 28px !important;
         font-weight: 600 !important;
         font-size: 0.95rem !important;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 2px 8px rgba(0, 212, 170, 0.2);
+        box-shadow: 0 2px 8px rgba(255, 144, 0, 0.3);
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
@@ -181,8 +191,8 @@ st.markdown("""
     .stButton > button[kind="primary"]:hover,
     .stDownloadButton > button:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 16px rgba(0, 212, 170, 0.3);
-        background: linear-gradient(135deg, #00e6bb 0%, #00c9aa 100%) !important;
+        box-shadow: 0 4px 16px rgba(255, 144, 0, 0.5);
+        background: linear-gradient(135deg, #FFA500 0%, #FF8C00 100%) !important;
     }
     
     /* Secondary buttons */
@@ -248,7 +258,7 @@ st.markdown("""
         background: transparent !important;
     }
     
-    /* Selectbox and dropdown styling */
+    /* Selectbox and dropdown styling - WHITE TEXT */
     [data-baseweb="select"] {
         background: rgba(255, 255, 255, 0.05) !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -262,9 +272,14 @@ st.markdown("""
         padding: 8px 12px !important;
     }
     
+    /* Selected value text - FORCE WHITE */
+    [data-baseweb="select"] div {
+        color: #ffffff !important;
+    }
+    
     /* Dropdown menu */
     [data-baseweb="popover"] {
-        background: rgba(20, 20, 20, 0.98) !important;
+        background: rgba(20, 30, 45, 0.98) !important;
         backdrop-filter: blur(20px);
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
         border-radius: 12px !important;
@@ -287,23 +302,53 @@ st.markdown("""
     }
     
     [role="option"]:hover {
-        background: rgba(0, 255, 170, 0.1) !important;
+        background: rgba(0, 212, 170, 0.1) !important;
     }
     
     [aria-selected="true"] {
-        background: rgba(0, 255, 170, 0.15) !important;
+        background: rgba(0, 212, 170, 0.15) !important;
     }
     
-    /* Expander text visibility */
+    /* Expander text visibility - NO OVERLAPPING */
+    .streamlit-expanderHeader {
+        background: rgba(30, 45, 65, 0.6) !important;
+        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+        border-radius: 12px !important;
+        color: #ffffff !important;
+        font-weight: 500 !important;
+        transition: all 0.3s ease;
+        padding: 16px !important;
+        margin: 8px 0 !important;
+    }
+    
+    .streamlit-expanderHeader:hover {
+        background: rgba(30, 45, 65, 0.8) !important;
+        border-color: rgba(0, 212, 170, 0.3) !important;
+    }
+    
     .streamlit-expanderHeader p {
         color: #ffffff !important;
         font-size: 1rem !important;
         line-height: 1.6 !important;
+        margin: 0 !important;
+    }
+    
+    .streamlit-expanderContent {
+        background: rgba(20, 30, 45, 0.4) !important;
+        border: 1px solid rgba(255, 255, 255, 0.05) !important;
+        border-radius: 0 0 12px 12px !important;
+        padding: 20px !important;
+        margin-top: -8px !important;
     }
     
     .streamlit-expanderContent p {
         color: rgba(255, 255, 255, 0.85) !important;
-        line-height: 1.6 !important;
+        line-height: 1.8 !important;
+        margin: 8px 0 !important;
+    }
+    
+    .streamlit-expanderContent strong {
+        color: #ffffff !important;
     }
     
     /* Progress bar */
@@ -478,31 +523,40 @@ st.markdown("""
     
     /* Sidebar logo and tagline styling */
     [data-testid="stSidebar"] h1 {
-        text-align: center;
-        margin-bottom: 0.5rem !important;
-        font-size: 2rem !important;
+        text-align: left !important;
+        margin-bottom: 0.3rem !important;
+        font-size: 1.8rem !important;
+        color: #ffffff !important;
+        font-weight: 700 !important;
     }
     
     [data-testid="stSidebar"] .tagline {
-        text-align: center;
-        color: rgba(0, 255, 170, 0.8) !important;
-        font-size: 0.9rem !important;
-        font-weight: 500 !important;
+        text-align: left !important;
+        color: rgba(255, 255, 255, 0.5) !important;
+        font-size: 0.75rem !important;
+        font-weight: 400 !important;
         letter-spacing: 0.1em;
         margin-bottom: 2rem !important;
         text-transform: uppercase;
     }
     
-    /* Logout button at bottom */
-    [data-testid="stSidebar"] > div:first-child {
-        display: flex;
-        flex-direction: column;
-        height: 100vh;
+    /* Logout button styling - at bottom */
+    [data-testid="stSidebar"] .logout-section {
+        margin-top: auto;
+        padding-top: 2rem;
+        border-top: 1px solid rgba(255, 255, 255, 0.05);
     }
     
-    .sidebar-logout {
-        margin-top: auto !important;
-        padding-bottom: 2rem;
+    [data-testid="stSidebar"] .logout-section button {
+        background: rgba(255, 80, 80, 0.1) !important;
+        color: #ff5050 !important;
+        border: 1px solid rgba(255, 80, 80, 0.3) !important;
+        transition: all 0.2s ease;
+    }
+    
+    [data-testid="stSidebar"] .logout-section button:hover {
+        background: rgba(255, 80, 80, 0.2) !important;
+        border-color: #ff5050 !important;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -515,40 +569,39 @@ def initialize_session_state():
         st.session_state.user = None
 
 def render_sidebar(user: dict):
-    """Render sidebar navigation - minimal, no icons"""
+    """Render sidebar navigation - Base44 style with icons"""
     with st.sidebar:
-        # Logo
+        # Logo and tagline
         st.markdown("# OSCAR")
+        st.markdown('<p class="tagline">Track. Save. Review.</p>', unsafe_allow_html=True)
         
-        # Tagline
-        st.markdown('<p class="tagline">Save. Spend. Track.</p>', unsafe_allow_html=True)
+        st.markdown("<br>", unsafe_allow_html=True)
         
-        st.markdown("---")
-        
-        # Navigation without icons - clean minimal
+        # Navigation with icons (using Unicode symbols)
         page = st.radio(
             "Navigate",
             [
-                "Dashboard",
-                "Expenses", 
-                "Dates",
-                "Budget Tracker",
-                "Friends",
-                "Analytics",
-                "Profile"
+                "📊  Dashboard",
+                "💰  Expenses", 
+                "📅  Dates",
+                "💳  Budget Tracker",
+                "👥  Friends",
+                "📈  Analytics",
+                "👤  Profile"
             ],
             label_visibility="collapsed"
         )
         
-        # Spacer to push logout to bottom
-        st.markdown('<div style="flex-grow: 1;"></div>', unsafe_allow_html=True)
+        # Spacer - fills remaining space
+        st.markdown('<div style="flex-grow: 1; min-height: 200px;"></div>', unsafe_allow_html=True)
         
-        # Logout button at bottom
-        st.markdown("---")
-        if st.button("Logout", use_container_width=True, key="logout_btn"):
+        # Logout at bottom
+        st.markdown('<div class="logout-section">', unsafe_allow_html=True)
+        if st.button("🚪 Logout", use_container_width=True, key="logout_btn"):
             st.session_state.authenticated = False
             st.session_state.user = None
             st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
         
     return page
 
@@ -557,19 +610,19 @@ def render_main_content(user: dict):
     db = DatabaseManager()
     page = render_sidebar(user)
     
-    if page == "Dashboard":
+    if page == "📊  Dashboard":
         render_dashboard(user, db)
-    elif page == "Expenses":
+    elif page == "💰  Expenses":
         render_expenses(user, db)
-    elif page == "Dates":
+    elif page == "📅  Dates":
         render_dates(user, db)
-    elif page == "Budget Tracker":
+    elif page == "💳  Budget Tracker":
         render_budget(user, db)
-    elif page == "Friends":
+    elif page == "👥  Friends":
         render_friends(user, db)
-    elif page == "Analytics":
+    elif page == "📈  Analytics":
         render_analytics(user, db)
-    elif page == "Profile":
+    elif page == "👤  Profile":
         render_profile(user, db)
 
 def main():
