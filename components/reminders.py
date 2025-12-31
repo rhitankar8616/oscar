@@ -107,18 +107,7 @@ def render_reminders(user: dict, db: DatabaseManager):
                 rem_col1, rem_col2, rem_col3 = st.columns([3, 2, 1])
                 
                 with rem_col1:
-                    type_icons = {
-                        "Salary Day": "💰",
-                        "Rent Payment": "🏠",
-                        "EMI Payment": "💳",
-                        "Bill Payment": "💡",
-                        "Subscription": "📱",
-                        "Shopping": "🛍️",
-                        "Other": "📌"
-                    }
-                    icon = type_icons.get(reminder['reminder_type'], "📌")
-                    
-                    st.markdown(f"{icon} **{reminder['title']}**")
+                    st.markdown(f"**{reminder['title']}**")
                     
                     date_str = format_date(reminder['date'])
                     badge = " • Monthly" if reminder['is_recurring'] else ""
@@ -156,18 +145,7 @@ def render_reminders(user: dict, db: DatabaseManager):
                 rem_col1, rem_col2, rem_col3 = st.columns([3, 2, 1])
                 
                 with rem_col1:
-                    type_icons = {
-                        "Salary Day": "💰",
-                        "Rent Payment": "🏠",
-                        "EMI Payment": "💳",
-                        "Bill Payment": "💡",
-                        "Subscription": "📱",
-                        "Shopping": "🛍️",
-                        "Other": "📌"
-                    }
-                    icon = type_icons.get(reminder['reminder_type'], "📌")
-                    
-                    st.markdown(f"{icon} **{reminder['title']}**")
+                    st.markdown(f"**{reminder['title']}**")
                     
                     date_str = format_date(reminder['date'])
                     badge = " • Monthly" if reminder['is_recurring'] else ""

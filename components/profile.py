@@ -81,13 +81,13 @@ def render_personal_info(user: dict, db: DatabaseManager):
             }
             
             if db.update_user_profile(user['id'], updates):
-                st.success("✅ Profile updated successfully!")
+                st.success("Profile updated successfully!")
                 # Update session state
                 for key, value in updates.items():
                     st.session_state.user[key] = value
                 st.rerun()
             else:
-                st.error("❌ Failed to update profile")
+                st.error("Failed to update profile")
 
 def render_financial_settings(user: dict, db: DatabaseManager):
     """Render financial settings section"""
@@ -138,12 +138,12 @@ def render_financial_settings(user: dict, db: DatabaseManager):
             }
             
             if db.update_user_profile(user['id'], updates):
-                st.success("✅ Financial settings updated!")
+                st.success("Financial settings updated!")
                 for key, value in updates.items():
                     st.session_state.user[key] = value
                 st.rerun()
             else:
-                st.error("❌ Failed to update settings")
+                st.error("Failed to update settings")
 
 def render_account_settings(user: dict, db: DatabaseManager):
     """Render account settings section"""
@@ -155,22 +155,22 @@ def render_account_settings(user: dict, db: DatabaseManager):
     with col1:
         st.markdown("**Account Status**")
         if user.get('is_verified'):
-            st.success("✅ Email Verified")
+            st.success("Email Verified")
         else:
-            st.warning("⚠️ Email Not Verified")
+            st.warning("Email Not Verified")
     
     with col2:
         st.markdown("**Member Since**")
         if user.get('created_at'):
             created_date = datetime.strptime(user['created_at'], "%Y-%m-%d %H:%M:%S")
-            st.info(f"📅 {created_date.strftime('%B %d, %Y')}")
+            st.info(f"{created_date.strftime('%B %d, %Y')}")
     
     st.markdown("---")
     
     # Delete Account section
     st.markdown("#### Delete Account")
     
-    with st.expander("⚠️ Permanently Delete Your Account"):
+    with st.expander("Permanently Delete Your Account"):
         st.markdown("**Warning:** This action cannot be undone. All your data will be permanently deleted.")
         st.markdown("")
         

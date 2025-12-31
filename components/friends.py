@@ -252,8 +252,7 @@ def show_friend_detail(user: dict, db: DatabaseManager, friend_id: int):
                 trans_col1, trans_col2, trans_col3 = st.columns([3, 2, 1])
                 
                 with trans_col1:
-                    icon = "✅" if trans['transaction_type'] == "lent" else "⬆️"
-                    st.markdown(f"{icon} **{trans['description']}**")
+                    st.markdown(f"**{trans['description']}**")
                     st.caption(f"{format_date(trans['date'])}")
                 
                 with trans_col2:

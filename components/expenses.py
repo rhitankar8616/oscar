@@ -46,7 +46,7 @@ def render_add_expense(user: dict, db: DatabaseManager):
         
         if submitted:
             if not title or amount <= 0 or category == "All Categories":
-                st.error("⚠️ Please fill in all required fields")
+                st.error("Please fill in all required fields")
             else:
                 success = db.add_expense(
                     user_id=user['id'],
@@ -59,10 +59,10 @@ def render_add_expense(user: dict, db: DatabaseManager):
                 )
                 
                 if success:
-                    st.success("✅ Expense added successfully!")
+                    st.success("Expense added successfully!")
                     st.rerun()
                 else:
-                    st.error("❌ Failed to add expense")
+                    st.error("Failed to add expense")
 
 def render_view_expenses(user: dict, db: DatabaseManager):
     """Render expense list and filters"""
@@ -97,7 +97,7 @@ def render_view_expenses(user: dict, db: DatabaseManager):
     )
     
     if not expenses:
-        st.info("ℹ️ No expenses found. Add your first expense!")
+        st.info("No expenses found. Add your first expense!")
         return
     
     # Display expenses
@@ -132,9 +132,9 @@ def render_view_expenses(user: dict, db: DatabaseManager):
                 if expense.get('notes'):
                     st.markdown(f"**Notes:** {expense['notes']}")
             
-            if st.button("🗑️ Delete", key=f"delete_{expense['id']}", use_container_width=True):
+            if st.button("Delete", key=f"delete_{expense['id']}", use_container_width=True):
                 if db.delete_expense(user['id'], expense['id']):
-                    st.success("✅ Expense deleted!")
+                    st.success("Expense deleted!")
                     st.rerun()
                 else:
-                    st.error("❌ Failed to delete expense")
+                    st.error("Failed to delete expense")

@@ -25,16 +25,16 @@ def render_dashboard(user: dict, db: DatabaseManager):
     if monthly_budget > 0:
         percentage_used = (total_spent / monthly_budget) * 100
         if percentage_used < 50:
-            status = "🟢 Excellent"
+            status = "Excellent"
             status_color = "#4CAF50"
         elif percentage_used < 80:
-            status = "🟡 Good"
+            status = "Good"
             status_color = "#FF9800"
         else:
-            status = "🔴 Warning"
+            status = "Warning"
             status_color = "#F44336"
     else:
-        status = "⚪ Not Set"
+        status = "Not Set"
         status_color = "#757575"
         percentage_used = 0
     
@@ -45,12 +45,11 @@ def render_dashboard(user: dict, db: DatabaseManager):
         st.markdown(f"""
         <div style="padding: 20px; background: rgba(30, 45, 65, 0.5); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05);">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                <span style="font-size: 24px;">🎯</span>
                 <span style="color: rgba(255,255,255,0.6); font-size: 0.75rem; text-transform: uppercase;">Monthly Budget</span>
             </div>
             <h2 style="color: white; margin: 10px 0;">${monthly_budget:,.2f}</h2>
             <p style="color: #FF9000; font-size: 0.85rem; margin: 0;">
-                <a href="#" style="color: #FF9000; text-decoration: none;">Update budget →</a>
+                <a href="#" style="color: #FF9000; text-decoration: none;">Update budget</a>
             </p>
         </div>
         """, unsafe_allow_html=True)
@@ -59,7 +58,6 @@ def render_dashboard(user: dict, db: DatabaseManager):
         st.markdown(f"""
         <div style="padding: 20px; background: rgba(30, 45, 65, 0.5); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05);">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                <span style="font-size: 24px;">💸</span>
                 <span style="color: rgba(255,255,255,0.6); font-size: 0.75rem; text-transform: uppercase;">Spent This Month</span>
             </div>
             <h2 style="color: white; margin: 10px 0;">${total_spent:,.2f}</h2>
@@ -71,7 +69,6 @@ def render_dashboard(user: dict, db: DatabaseManager):
         st.markdown(f"""
         <div style="padding: 20px; background: rgba(30, 45, 65, 0.5); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05);">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                <span style="font-size: 24px;">💰</span>
                 <span style="color: rgba(255,255,255,0.6); font-size: 0.75rem; text-transform: uppercase;">Remaining Budget</span>
             </div>
             <h2 style="color: #4CAF50; margin: 10px 0;">${remaining:,.2f}</h2>
@@ -85,10 +82,9 @@ def render_dashboard(user: dict, db: DatabaseManager):
         st.markdown(f"""
         <div style="padding: 20px; background: rgba(30, 45, 65, 0.5); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05);">
             <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
-                <span style="font-size: 24px;">📊</span>
                 <span style="color: rgba(255,255,255,0.6); font-size: 0.75rem; text-transform: uppercase;">Status</span>
             </div>
-            <h2 style="color: {status_color}; margin: 10px 0;">{status.split(' ')[1]}</h2>
+            <h2 style="color: {status_color}; margin: 10px 0;">{status}</h2>
             <div style="background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; overflow: hidden;">
                 <div style="background: {status_color}; height: 100%; width: {min(percentage_used, 100)}%; transition: width 0.3s;"></div>
             </div>
@@ -101,7 +97,7 @@ def render_dashboard(user: dict, db: DatabaseManager):
     col1, col2 = st.columns(2)
     
     with col1:
-        st.markdown("### 📝 Recent Expenses")
+        st.markdown("### Recent Expenses")
         if expenses:
             # Show last 5 expenses
             recent = pd.DataFrame(expenses).head(5)
@@ -121,10 +117,10 @@ def render_dashboard(user: dict, db: DatabaseManager):
             
             st.markdown(f"<p style='text-align: center; margin-top: 16px;'><a href='#' style='color: #FF9000; text-decoration: none;'>View All →</a></p>", unsafe_allow_html=True)
         else:
-            st.info("📭 No expenses recorded yet")
+            st.info("No expenses recorded yet")
     
     with col2:
-        st.markdown("### 🔔 Upcoming Reminders")
+        st.markdown("### Upcoming Reminders")
         reminders = db.get_user_reminders(user['id'])
         
         if reminders:
@@ -151,6 +147,6 @@ def render_dashboard(user: dict, db: DatabaseManager):
             
             st.markdown(f"<p style='text-align: center; margin-top: 16px;'><a href='#' style='color: #4CAF50; text-decoration: none;'>Add Reminder →</a></p>", unsafe_allow_html=True)
         else:
-            st.info("📭 No upcoming reminders")
-            if st.button("➕ Add Reminder", use_container_width=True):
+            st.info("No upcoming reminders")
+            if st.button("Add Reminder", use_container_width=True):
                 st.info("Navigate to Dates section to add reminders")

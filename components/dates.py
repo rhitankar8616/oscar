@@ -75,7 +75,7 @@ def render_add_reminder(user: dict, db: DatabaseManager):
         
         if submit:
             if not title:
-                st.error("⚠️ Please enter a title")
+                st.error("Please enter a title")
             else:
                 reminder_data = {
                     'user_id': user['id'],
@@ -93,10 +93,10 @@ def render_add_reminder(user: dict, db: DatabaseManager):
                 success = db.add_reminder(reminder_data)
                 
                 if success:
-                    st.success("✅ Reminder added successfully!")
+                    st.success("Reminder added successfully!")
                     st.rerun()
                 else:
-                    st.error("❌ Failed to add reminder")
+                    st.error("Failed to add reminder")
 
 def render_upcoming_reminders(user: dict, db: DatabaseManager):
     """Render upcoming reminders (next 30 days)"""
@@ -105,7 +105,7 @@ def render_upcoming_reminders(user: dict, db: DatabaseManager):
     reminders = db.get_reminders(user['id'], status='pending')
     
     if not reminders:
-        st.info("ℹ️ No upcoming reminders")
+        st.info("No upcoming reminders")
         return
     
     df = pd.DataFrame(reminders)
@@ -118,7 +118,7 @@ def render_upcoming_reminders(user: dict, db: DatabaseManager):
     upcoming = upcoming.sort_values('due_date')
     
     if upcoming.empty:
-        st.info("ℹ️ No reminders in the next 30 days")
+        st.info("No reminders in the next 30 days")
         return
     
     for _, reminder in upcoming.iterrows():
@@ -127,13 +127,13 @@ def render_upcoming_reminders(user: dict, db: DatabaseManager):
         # Color code based on urgency
         if days_until <= 3:
             border_color = "rgba(255, 68, 68, 0.5)"  # Red
-            emoji = "🔴"
+            urgency_label = "Urgent"
         elif days_until <= 7:
             border_color = "rgba(255, 170, 0, 0.5)"  # Orange
-            emoji = "🟡"
+            urgency_label = "Soon"
         else:
             border_color = "rgba(0, 255, 170, 0.3)"  # Green
-            emoji = "🟢"
+            urgency_label = ""
         
         with st.container():
             st.markdown(f"""
@@ -149,15 +149,15 @@ def render_upcoming_reminders(user: dict, db: DatabaseManager):
             col1, col2, col3 = st.columns([3, 1, 1])
             
             with col1:
-                st.markdown(f"**{emoji} {reminder['title']}**")
+                st.markdown(f"**{reminder['title']}**")
                 st.caption(f"{reminder['type']} • {reminder['description'] if pd.notna(reminder['description']) else 'No description'}")
             
             with col2:
                 st.markdown(f"**Due:** {reminder['due_date'].strftime('%b %d, %Y')}")
                 if days_until == 0:
-                    st.caption("⚠️ Today!")
+                    st.caption("Today!")
                 elif days_until == 1:
-                    st.caption("⚠️ Tomorrow")
+                    st.caption("Tomorrow")
                 else:
                     st.caption(f"In {days_until} days")
             
@@ -166,9 +166,9 @@ def render_upcoming_reminders(user: dict, db: DatabaseManager):
                     st.markdown(f"**Amount:**")
                     st.markdown(f"${reminder['amount']:,.2f}")
                 
-                if st.button("✓ Mark Done", key=f"complete_{reminder['id']}", use_container_width=True):
+                if st.button("Mark Done", key=f"complete_{reminder['id']}", use_container_width=True):
                     db.update_reminder_status(reminder['id'], 'completed')
-                    st.success("✅ Reminder marked as completed!")
+                    st.success("Reminder marked as completed!")
                     st.rerun()
             
             st.markdown("</div>", unsafe_allow_html=True)
@@ -198,7 +198,7 @@ def render_all_reminders(user: dict, db: DatabaseManager):
         reminders = db.get_reminders(user['id'], status=status_filter.lower())
     
     if not reminders:
-        st.info("ℹ️ No reminders found")
+        st.info("No reminders found")
         return
     
     df = pd.DataFrame(reminders)
@@ -209,7 +209,7 @@ def render_all_reminders(user: dict, db: DatabaseManager):
         df = df[df['type'] == type_filter]
     
     if df.empty:
-        st.info("ℹ️ No reminders found with selected filters")
+        st.info("No reminders found with selected filters")
         return
     
     df = df.sort_values('due_date', ascending=False)
@@ -240,20 +240,20 @@ def render_all_reminders(user: dict, db: DatabaseManager):
             
             with col1:
                 if reminder['status'] == 'pending':
-                    if st.button("✓ Mark Complete", key=f"complete_all_{reminder['id']}", use_container_width=True):
+                    if st.button("Mark Complete", key=f"complete_all_{reminder['id']}", use_container_width=True):
                         db.update_reminder_status(reminder['id'], 'completed')
-                        st.success("✅ Marked as completed!")
+                        st.success("Marked as completed!")
                         st.rerun()
             
             with col2:
                 if reminder['status'] != 'cancelled':
-                    if st.button("✗ Cancel", key=f"cancel_{reminder['id']}", use_container_width=True):
+                    if st.button("Cancel", key=f"cancel_{reminder['id']}", use_container_width=True):
                         db.update_reminder_status(reminder['id'], 'cancelled')
-                        st.success("✅ Reminder cancelled")
+                        st.success("Reminder cancelled")
                         st.rerun()
             
             with col3:
-                if st.button("🗑️ Delete", key=f"delete_{reminder['id']}", use_container_width=True):
+                if st.button("Delete", key=f"delete_{reminder['id']}", use_container_width=True):
                     db.delete_reminder(reminder['id'])
-                    st.success("✅ Reminder deleted")
+                    st.success("Reminder deleted")
                     st.rerun()

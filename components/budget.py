@@ -78,14 +78,14 @@ def render_budget(user: dict, db: DatabaseManager):
                 )
                 
                 if success:
-                    st.success("✅ Budget settings saved successfully!")
+                    st.success("Budget settings saved successfully!")
                     st.rerun()
                 else:
-                    st.error("❌ Failed to save budget settings")
+                    st.error("Failed to save budget settings")
     
     with tab2:
         if not budget_settings:
-            st.info("ℹ️ Please set your budget in the 'Set Budget' tab first.")
+            st.info("Please set your budget in the 'Set Budget' tab first.")
             return
         
         st.markdown("#### Your Budget Overview")
@@ -125,9 +125,9 @@ def render_budget(user: dict, db: DatabaseManager):
             st.progress(progress)
             
             if progress >= 1.0:
-                st.error("⚠️ You have exceeded your budget!")
+                st.error("You have exceeded your budget!")
             elif progress >= 0.8:
-                st.warning("⚠️ You're approaching your budget limit!")
+                st.warning("You're approaching your budget limit!")
             
             st.markdown("---")
             st.markdown("#### Category Breakdown")
@@ -161,10 +161,10 @@ def render_budget(user: dict, db: DatabaseManager):
                         st.caption(f"Spent: {budget_settings['currency']} {category_expenses:,.2f}")
                     with col3:
                         if remaining_cat < 0:
-                            st.caption(f"⚠️ Over by: {budget_settings['currency']} {abs(remaining_cat):,.2f}")
+                            st.caption(f"Over by: {budget_settings['currency']} {abs(remaining_cat):,.2f}")
                         else:
                             st.caption(f"Left: {budget_settings['currency']} {remaining_cat:,.2f}")
                     
                     st.markdown("")
         else:
-            st.info("ℹ️ No expenses recorded yet for this month.")
+            st.info("No expenses recorded yet for this month.")
