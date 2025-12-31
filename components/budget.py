@@ -5,7 +5,7 @@ from database.db_manager import DatabaseManager
 
 def render_budget(user: dict, db: DatabaseManager):
     """Render budget tracking page"""
-    st.markdown("#### Budget Tracker")
+    st.markdown("### Budget Tracker")
     
     # Get user's budget settings
     budget_settings = db.get_budget_settings(user['id'])

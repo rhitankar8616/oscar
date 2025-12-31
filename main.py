@@ -12,7 +12,7 @@ from components.profile import render_profile
 # Page config
 st.set_page_config(
     page_title="OSCAR - Smart Expense Tracker",
-    page_icon="▦",
+    page_icon="💰",
     layout="wide",
     initial_sidebar_state="expanded"
 )
@@ -248,19 +248,62 @@ st.markdown("""
         background: transparent !important;
     }
     
-    /* Expander */
-    .streamlit-expanderHeader {
-        background: rgba(255, 255, 255, 0.04) !important;
-        border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    /* Selectbox and dropdown styling */
+    [data-baseweb="select"] {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
         border-radius: 12px !important;
-        color: #ffffff !important;
-        font-weight: 500 !important;
-        transition: all 0.3s ease;
+        min-height: 45px !important;
     }
     
-    .streamlit-expanderHeader:hover {
-        background: rgba(255, 255, 255, 0.06) !important;
-        border-color: rgba(0, 255, 170, 0.3) !important;
+    [data-baseweb="select"] > div {
+        background: rgba(255, 255, 255, 0.05) !important;
+        color: #ffffff !important;
+        padding: 8px 12px !important;
+    }
+    
+    /* Dropdown menu */
+    [data-baseweb="popover"] {
+        background: rgba(20, 20, 20, 0.98) !important;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+        margin-top: 4px !important;
+    }
+    
+    [role="listbox"] {
+        background: transparent !important;
+        padding: 8px !important;
+    }
+    
+    [role="option"] {
+        background: transparent !important;
+        color: #ffffff !important;
+        padding: 12px 16px !important;
+        border-radius: 8px !important;
+        margin: 2px 0 !important;
+        min-height: 40px !important;
+        line-height: 1.5 !important;
+    }
+    
+    [role="option"]:hover {
+        background: rgba(0, 255, 170, 0.1) !important;
+    }
+    
+    [aria-selected="true"] {
+        background: rgba(0, 255, 170, 0.15) !important;
+    }
+    
+    /* Expander text visibility */
+    .streamlit-expanderHeader p {
+        color: #ffffff !important;
+        font-size: 1rem !important;
+        line-height: 1.6 !important;
+    }
+    
+    .streamlit-expanderContent p {
+        color: rgba(255, 255, 255, 0.85) !important;
+        line-height: 1.6 !important;
     }
     
     /* Progress bar */
@@ -472,7 +515,7 @@ def initialize_session_state():
         st.session_state.user = None
 
 def render_sidebar(user: dict):
-    """Render sidebar navigation with clean minimal icons"""
+    """Render sidebar navigation - minimal, no icons"""
     with st.sidebar:
         # Logo
         st.markdown("# OSCAR")
@@ -482,17 +525,17 @@ def render_sidebar(user: dict):
         
         st.markdown("---")
         
-        # Navigation with clean Unicode icons
+        # Navigation without icons - clean minimal
         page = st.radio(
             "Navigate",
             [
-                "▦  Dashboard",
-                "▭  Expenses", 
-                "◷  Dates",
-                "▣  Budget Tracker",
-                "◉  Friends",
-                "△  Analytics",
-                "◎  Profile"
+                "Dashboard",
+                "Expenses", 
+                "Dates",
+                "Budget Tracker",
+                "Friends",
+                "Analytics",
+                "Profile"
             ],
             label_visibility="collapsed"
         )
@@ -502,7 +545,7 @@ def render_sidebar(user: dict):
         
         # Logout button at bottom
         st.markdown("---")
-        if st.button("⏻  Logout", use_container_width=True, key="logout_btn"):
+        if st.button("Logout", use_container_width=True, key="logout_btn"):
             st.session_state.authenticated = False
             st.session_state.user = None
             st.rerun()
@@ -514,19 +557,19 @@ def render_main_content(user: dict):
     db = DatabaseManager()
     page = render_sidebar(user)
     
-    if page == "▦  Dashboard":
+    if page == "Dashboard":
         render_dashboard(user, db)
-    elif page == "▭  Expenses":
+    elif page == "Expenses":
         render_expenses(user, db)
-    elif page == "◷  Dates":
+    elif page == "Dates":
         render_dates(user, db)
-    elif page == "▣  Budget Tracker":
+    elif page == "Budget Tracker":
         render_budget(user, db)
-    elif page == "◉  Friends":
+    elif page == "Friends":
         render_friends(user, db)
-    elif page == "△  Analytics":
+    elif page == "Analytics":
         render_analytics(user, db)
-    elif page == "◎  Profile":
+    elif page == "Profile":
         render_profile(user, db)
 
 def main():

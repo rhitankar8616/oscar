@@ -5,7 +5,7 @@ from database.db_manager import DatabaseManager
 
 def render_dates(user: dict, db: DatabaseManager):
     """Render dates and reminders page"""
-    st.markdown("#### Important Dates & Reminders")
+    st.markdown("### Important Dates & Reminders")
     
     # Create tabs
     tab1, tab2, tab3 = st.tabs(["Add Reminder", "Upcoming", "All Reminders"])

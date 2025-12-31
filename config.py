@@ -39,3 +39,30 @@ print("[CONFIG] EMAIL_USER:", EMAIL_USER if EMAIL_USER else "Not configured")
 print("[CONFIG] SMTP_SERVER:", SMTP_SERVER)
 print("[CONFIG] SMTP_PORT:", SMTP_PORT)
 print("[CONFIG] APP_URL:", APP_URL)
+
+# Categories for expenses
+CATEGORIES = [
+    "Food & Dining",
+    "Transportation",
+    "Shopping",
+    "Entertainment",
+    "Bills & Utilities",
+    "Health",
+    "Travel",
+    "Education",
+    "Personal Care",
+    "Other"
+]
+
+# Currency symbols
+CURRENCIES = {
+    "USD": "$",
+    "EUR": "€",
+    "GBP": "£",
+    "INR": "₹",
+    "JPY": "¥",
+    "AUD": "A$",
+    "CAD": "C$",
+    "CHF": "Fr",
+    "CNY": "¥"
+}
