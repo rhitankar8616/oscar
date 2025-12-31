@@ -34,89 +34,19 @@ st.markdown("""
     }
     
     /* Sidebar styling - darker navy like Base44 */
-    section[data-testid="stSidebar"] {
+    [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%) !important;
         border-right: 1px solid rgba(255, 255, 255, 0.05);
-        min-width: 240px !important;
-        width: 240px !important;
+        min-width: 250px !important;
     }
     
-    section[data-testid="stSidebar"] > div {
+    [data-testid="stSidebar"] > div:first-child {
         background: transparent !important;
-        padding-top: 1.5rem !important;
+        padding-top: 1rem !important;
     }
     
-    /* Hide radio button label text "Navigation" */
-    section[data-testid="stSidebar"] .stRadio > label:first-of-type {
-        display: none !important;
-    }
-    
-    /* Navigation container */
-    section[data-testid="stSidebar"] .stRadio > div {
-        display: flex;
-        flex-direction: column;
-        gap: 4px;
-    }
-    
-    /* Navigation items - Base44 style */
-    section[data-testid="stSidebar"] .stRadio > div > label {
+    [data-testid="stSidebarContent"] {
         background: transparent !important;
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 12px 16px !important;
-        margin: 2px 12px !important;
-        transition: all 0.2s ease !important;
-        cursor: pointer !important;
-        display: flex !important;
-        align-items: center !important;
-    }
-    
-    section[data-testid="stSidebar"] .stRadio > div > label:hover {
-        background: rgba(255, 255, 255, 0.06) !important;
-    }
-    
-    /* Hide the radio circle completely */
-    section[data-testid="stSidebar"] .stRadio > div > label > div:first-child {
-        display: none !important;
-    }
-    
-    /* Navigation text styling */
-    section[data-testid="stSidebar"] .stRadio > div > label p {
-        color: rgba(255, 255, 255, 0.55) !important;
-        font-size: 0.9rem !important;
-        font-weight: 400 !important;
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-    
-    /* Selected navigation item - orange highlight like Base44 */
-    section[data-testid="stSidebar"] .stRadio > div > label[data-checked="true"],
-    section[data-testid="stSidebar"] .stRadio > div > label:has(input:checked) {
-        background: rgba(255, 144, 0, 0.12) !important;
-    }
-    
-    section[data-testid="stSidebar"] .stRadio > div > label[data-checked="true"] p,
-    section[data-testid="stSidebar"] .stRadio > div > label:has(input:checked) p {
-        color: #FF9000 !important;
-        font-weight: 500 !important;
-    }
-    
-    /* Logout button styling */
-    section[data-testid="stSidebar"] .logout-btn button {
-        background: rgba(255, 100, 100, 0.08) !important;
-        color: #ff6b6b !important;
-        border: 1px solid rgba(255, 100, 100, 0.15) !important;
-        border-radius: 8px !important;
-        padding: 10px 16px !important;
-        font-size: 0.85rem !important;
-        font-weight: 500 !important;
-        transition: all 0.2s ease !important;
-        width: 100% !important;
-    }
-    
-    section[data-testid="stSidebar"] .logout-btn button:hover {
-        background: rgba(255, 100, 100, 0.15) !important;
-        border-color: rgba(255, 100, 100, 0.3) !important;
     }
     
     /* Main content area */
@@ -293,7 +223,7 @@ st.markdown("""
         background: transparent !important;
     }
     
-    /* Selectbox and dropdown styling - WHITE TEXT */
+    /* Selectbox and dropdown styling */
     [data-baseweb="select"] {
         background: rgba(255, 255, 255, 0.05) !important;
         border: 1px solid rgba(255, 255, 255, 0.1) !important;
@@ -307,7 +237,6 @@ st.markdown("""
         padding: 8px 12px !important;
     }
     
-    /* Selected value text - FORCE WHITE */
     [data-baseweb="select"] div {
         color: #ffffff !important;
     }
@@ -376,16 +305,6 @@ st.markdown("""
         margin-top: -8px !important;
     }
     
-    .streamlit-expanderContent p {
-        color: rgba(255, 255, 255, 0.85) !important;
-        line-height: 1.8 !important;
-        margin: 8px 0 !important;
-    }
-    
-    .streamlit-expanderContent strong {
-        color: #ffffff !important;
-    }
-    
     /* Progress bar */
     .stProgress > div > div > div > div {
         background: linear-gradient(90deg, #00ffaa 0%, #00d4aa 100%) !important;
@@ -406,13 +325,6 @@ st.markdown("""
         padding: 16px 20px !important;
     }
     
-    [data-testid="stNotification"] {
-        background: rgba(20, 20, 20, 0.95) !important;
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        border-radius: 12px !important;
-    }
-    
     /* File uploader */
     [data-testid="stFileUploader"] {
         background: rgba(255, 255, 255, 0.04) !important;
@@ -424,11 +336,6 @@ st.markdown("""
     [data-testid="stFileUploader"]:hover {
         border-color: rgba(0, 255, 170, 0.5) !important;
         background: rgba(255, 255, 255, 0.06) !important;
-    }
-    
-    /* Checkbox and radio (not in sidebar) */
-    .main .stCheckbox, .main .stRadio {
-        color: rgba(255, 255, 255, 0.85) !important;
     }
     
     /* Plotly charts */
@@ -478,11 +385,6 @@ st.markdown("""
         font-size: 0.9em !important;
     }
     
-    /* Spinner */
-    .stSpinner > div {
-        border-top-color: #00ffaa !important;
-    }
-    
     /* Form styling */
     [data-testid="stForm"] {
         background: rgba(255, 255, 255, 0.03) !important;
@@ -492,61 +394,47 @@ st.markdown("""
         backdrop-filter: blur(10px);
     }
     
-    /* Caption text */
-    .caption {
-        color: rgba(255, 255, 255, 0.5) !important;
-        font-size: 0.85rem !important;
-    }
-    
-    /* Card-like containers */
-    [data-testid="stVerticalBlock"] > [data-testid="stVerticalBlock"] {
-        background: rgba(255, 255, 255, 0.02);
-        border-radius: 16px;
-        padding: 16px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
-        transition: all 0.3s ease;
-    }
-    
     /* Remove Streamlit branding */
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
     
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        section[data-testid="stSidebar"] {
-            min-width: 100% !important;
-            width: 100% !important;
-        }
-        
-        .block-container {
-            padding: 1rem !important;
-        }
-        
-        [data-testid="column"] {
-            width: 100% !important;
-            padding: 0 !important;
-            margin-bottom: 1rem;
-        }
-        
-        h1 {
-            font-size: 1.8rem !important;
-        }
-        
-        h3 {
-            font-size: 1.2rem !important;
-        }
-        
-        .stButton > button {
-            width: 100% !important;
-        }
-        
-        [data-testid="stMetric"] {
-            padding: 15px !important;
-        }
+    /* Sidebar navigation item styling */
+    .nav-item {
+        padding: 12px 16px;
+        margin: 4px 0;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 0.9rem;
+    }
+    
+    .nav-item:hover {
+        background: rgba(255, 255, 255, 0.05);
+        color: rgba(255, 255, 255, 0.9);
+    }
+    
+    .nav-item.active {
+        background: rgba(255, 144, 0, 0.15);
+        color: #FF9000;
+        font-weight: 500;
+    }
+    
+    /* Logout button in sidebar */
+    .sidebar-logout button {
+        background: rgba(255, 100, 100, 0.1) !important;
+        color: #ff6b6b !important;
+        border: 1px solid rgba(255, 100, 100, 0.2) !important;
+        width: 100%;
+    }
+    
+    .sidebar-logout button:hover {
+        background: rgba(255, 100, 100, 0.2) !important;
     }
 </style>
 """, unsafe_allow_html=True)
+
 
 def initialize_session_state():
     """Initialize session state variables"""
@@ -557,67 +445,82 @@ def initialize_session_state():
     if 'current_page' not in st.session_state:
         st.session_state.current_page = "Dashboard"
 
+
 def render_sidebar(user: dict):
     """Render sidebar navigation - Base44 style with clean minimal design"""
     with st.sidebar:
         # Logo and tagline at top
         st.markdown("""
-            <div style="padding: 0 16px; margin-bottom: 2.5rem;">
-                <h1 style="font-size: 1.8rem; font-weight: 700; color: #ffffff; margin: 0; 
-                    background: none; -webkit-text-fill-color: #ffffff;">OSCAR</h1>
-                <p style="color: rgba(255,255,255,0.4); font-size: 0.7rem; font-weight: 400; 
-                    letter-spacing: 0.15em; text-transform: uppercase; margin-top: 4px;">
+            <div style="padding: 8px 0 24px 0;">
+                <h2 style="font-size: 1.6rem; font-weight: 700; color: #ffffff; margin: 0; 
+                    background: none; -webkit-text-fill-color: #ffffff;">OSCAR</h2>
+                <p style="color: rgba(255,255,255,0.4); font-size: 0.65rem; font-weight: 400; 
+                    letter-spacing: 0.15em; text-transform: uppercase; margin-top: 2px; margin-bottom: 0;">
                     Track. Save. Review.</p>
             </div>
         """, unsafe_allow_html=True)
         
-        # Navigation options - clean text labels
-        page = st.radio(
+        st.markdown("---")
+        
+        # Navigation using selectbox for reliability
+        pages = [
+            "Dashboard",
+            "Expenses",
+            "Dates",
+            "Budget Tracker",
+            "Friends",
+            "Analytics",
+            "Profile"
+        ]
+        
+        # Use selectbox for navigation (more reliable than radio in some Streamlit versions)
+        page = st.selectbox(
             "Navigation",
-            options=[
-                "Dashboard",
-                "Expenses",
-                "Dates",
-                "Budget Tracker",
-                "Friends",
-                "Analytics",
-                "Profile"
-            ],
+            options=pages,
+            index=pages.index(st.session_state.current_page) if st.session_state.current_page in pages else 0,
             label_visibility="collapsed",
-            key="nav_radio"
+            key="nav_select"
         )
         
-        # Spacer to push logout to bottom
-        st.markdown("""<div style="flex-grow: 1; min-height: 180px;"></div>""", unsafe_allow_html=True)
+        # Update session state
+        st.session_state.current_page = page
+        
+        # Add some space
+        st.markdown("<br>" * 8, unsafe_allow_html=True)
+        
+        # Divider before user section
+        st.markdown("---")
         
         # User info section at bottom
         if user:
-            first_name = user.get('first_name', 'User')
+            full_name = user.get('full_name', 'User')
             email = user.get('email', '')
-            initial = first_name[0].upper() if first_name else 'U'
-            display_email = email[:22] + '...' if len(email) > 22 else email
+            initial = full_name[0].upper() if full_name else 'U'
             
             st.markdown(f"""
-                <div style="padding: 12px 16px; border-top: 1px solid rgba(255,255,255,0.05); margin-bottom: 8px;">
-                    <div style="display: flex; align-items: center; gap: 10px;">
-                        <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #3b82f6, #6366f1); 
-                            border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-                            color: white; font-weight: 600; font-size: 13px; flex-shrink: 0;">{initial}</div>
-                        <p style="color: rgba(255,255,255,0.45); font-size: 0.72rem; margin: 0; 
-                            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{display_email}</p>
+                <div style="display: flex; align-items: center; gap: 10px; padding: 8px 0; margin-bottom: 12px;">
+                    <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #3b82f6, #6366f1); 
+                        border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+                        color: white; font-weight: 600; font-size: 13px; flex-shrink: 0;">{initial}</div>
+                    <div style="overflow: hidden;">
+                        <p style="color: rgba(255,255,255,0.7); font-size: 0.8rem; margin: 0; font-weight: 500;">{full_name}</p>
+                        <p style="color: rgba(255,255,255,0.4); font-size: 0.7rem; margin: 0; 
+                            overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{email}</p>
                     </div>
                 </div>
             """, unsafe_allow_html=True)
         
         # Logout button
-        st.markdown('<div class="logout-btn" style="padding: 0 12px 16px 12px;">', unsafe_allow_html=True)
+        st.markdown('<div class="sidebar-logout">', unsafe_allow_html=True)
         if st.button("Logout", use_container_width=True, key="logout_btn"):
             st.session_state.authenticated = False
             st.session_state.user = None
+            st.session_state.current_page = "Dashboard"
             st.rerun()
         st.markdown('</div>', unsafe_allow_html=True)
         
     return page
+
 
 def render_main_content(user: dict):
     """Render main content based on selected page"""
@@ -639,6 +542,7 @@ def render_main_content(user: dict):
     elif page == "Profile":
         render_profile(user, db)
 
+
 def main():
     """Main application entry point"""
     initialize_session_state()
@@ -647,6 +551,7 @@ def main():
         render_auth()
     else:
         render_main_content(st.session_state.user)
+
 
 if __name__ == "__main__":
     main()
