@@ -69,7 +69,7 @@ def render_view_expenses(user: dict, db: DatabaseManager):
     st.markdown("#### Your Expenses")
     
     # Filters
-    col1, col2, col3 = st.columns(3)
+    col1, col2 = st.columns(2)
     
     with col1:
         filter_category = st.selectbox(
@@ -118,23 +118,48 @@ def render_view_expenses(user: dict, db: DatabaseManager):
     
     st.markdown("---")
     
-    # Display expense list
+    # Display expense list using cards instead of expanders to avoid text overlap
     for _, expense in df.iterrows():
-        with st.expander(f"{expense['title']} - ${expense['amount']:,.2f} ({expense['date']})"):
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.markdown(f"**Category:** {expense['category']}")
-                st.markdown(f"**Payment:** {expense['payment_method']}")
-            
-            with col2:
-                st.markdown(f"**Date:** {expense['date']}")
-                if expense.get('notes'):
-                    st.markdown(f"**Notes:** {expense['notes']}")
-            
+        # Create a styled card for each expense
+        st.markdown(f"""
+        <div style="
+            background: rgba(30, 45, 65, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        ">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px;">
+                    <h4 style="color: #ffffff; margin: 0 0 8px 0; font-size: 1.1rem;">{expense['title']}</h4>
+                    <p style="color: rgba(255,255,255,0.6); margin: 4px 0; font-size: 0.9rem;">
+                        <strong>Category:</strong> {expense['category']}
+                    </p>
+                    <p style="color: rgba(255,255,255,0.6); margin: 4px 0; font-size: 0.9rem;">
+                        <strong>Payment:</strong> {expense['payment_method']}
+                    </p>
+                </div>
+                <div style="text-align: right; min-width: 150px;">
+                    <p style="color: #FF9000; font-size: 1.4rem; font-weight: 700; margin: 0;">${expense['amount']:,.2f}</p>
+                    <p style="color: rgba(255,255,255,0.5); margin: 4px 0; font-size: 0.85rem;">
+                        <strong>Date:</strong> {expense['date']}
+                    </p>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Notes and delete button in columns
+        col1, col2 = st.columns([3, 1])
+        with col1:
+            if expense.get('notes'):
+                st.caption(f"Notes: {expense['notes']}")
+        with col2:
             if st.button("Delete", key=f"delete_{expense['id']}", use_container_width=True):
                 if db.delete_expense(user['id'], expense['id']):
                     st.success("Expense deleted!")
                     st.rerun()
                 else:
                     st.error("Failed to delete expense")
+        
+        st.markdown("")  # Small spacer

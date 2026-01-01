@@ -126,52 +126,55 @@ def render_upcoming_reminders(user: dict, db: DatabaseManager):
         
         # Color code based on urgency
         if days_until <= 3:
-            border_color = "rgba(255, 68, 68, 0.5)"  # Red
+            border_color = "#F44336"  # Red
             urgency_label = "Urgent"
         elif days_until <= 7:
-            border_color = "rgba(255, 170, 0, 0.5)"  # Orange
+            border_color = "#FF9800"  # Orange
             urgency_label = "Soon"
         else:
-            border_color = "rgba(0, 255, 170, 0.3)"  # Green
+            border_color = "#4CAF50"  # Green
             urgency_label = ""
         
-        with st.container():
-            st.markdown(f"""
-            <div style="
-                border-left: 4px solid {border_color};
-                padding: 16px;
-                margin: 12px 0;
-                background: rgba(255, 255, 255, 0.03);
-                border-radius: 12px;
-            ">
-            """, unsafe_allow_html=True)
-            
-            col1, col2, col3 = st.columns([3, 1, 1])
-            
-            with col1:
-                st.markdown(f"**{reminder['title']}**")
-                st.caption(f"{reminder['type']} • {reminder['description'] if pd.notna(reminder['description']) else 'No description'}")
-            
-            with col2:
-                st.markdown(f"**Due:** {reminder['due_date'].strftime('%b %d, %Y')}")
-                if days_until == 0:
-                    st.caption("Today!")
-                elif days_until == 1:
-                    st.caption("Tomorrow")
-                else:
-                    st.caption(f"In {days_until} days")
-            
-            with col3:
-                if pd.notna(reminder['amount']) and reminder['amount'] > 0:
-                    st.markdown(f"**Amount:**")
-                    st.markdown(f"${reminder['amount']:,.2f}")
-                
-                if st.button("Mark Done", key=f"complete_{reminder['id']}", use_container_width=True):
-                    db.update_reminder_status(reminder['id'], 'completed')
-                    st.success("Reminder marked as completed!")
-                    st.rerun()
-            
-            st.markdown("</div>", unsafe_allow_html=True)
+        # Get reminder type
+        reminder_type = reminder.get('type') or reminder.get('reminder_type') or 'Reminder'
+        
+        # Display as styled card
+        st.markdown(f"""
+        <div style="
+            border-left: 4px solid {border_color};
+            padding: 16px;
+            margin: 12px 0;
+            background: rgba(30, 45, 65, 0.5);
+            border-radius: 12px;
+        ">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px;">
+                    <h4 style="color: #ffffff; margin: 0 0 8px 0; font-size: 1.1rem;">{reminder['title']}</h4>
+                    <p style="color: rgba(255,255,255,0.6); margin: 4px 0; font-size: 0.85rem;">
+                        <strong>Type:</strong> {reminder_type}
+                    </p>
+                    <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin: 4px 0;">
+                        {reminder['description'] if pd.notna(reminder.get('description')) else 'No description'}
+                    </p>
+                </div>
+                <div style="text-align: right; min-width: 150px;">
+                    <p style="color: {border_color}; font-size: 1rem; font-weight: 600; margin: 0;">
+                        {'Today!' if days_until == 0 else 'Tomorrow' if days_until == 1 else f'In {days_until} days'}
+                    </p>
+                    <p style="color: rgba(255,255,255,0.6); margin: 4px 0; font-size: 0.85rem;">
+                        <strong>Due:</strong> {reminder['due_date'].strftime('%b %d, %Y')}
+                    </p>
+                    {f'<p style="color: #FF9000; font-size: 1.1rem; font-weight: 600; margin: 8px 0;">${reminder["amount"]:,.2f}</p>' if pd.notna(reminder.get('amount')) and reminder['amount'] > 0 else ''}
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Action button
+        if st.button("Mark Done", key=f"complete_{reminder['id']}", use_container_width=True):
+            db.update_reminder_status(reminder['id'], 'completed')
+            st.success("Reminder marked as completed!")
+            st.rerun()
 
 def render_all_reminders(user: dict, db: DatabaseManager):
     """Render all reminders with filters"""
@@ -206,7 +209,11 @@ def render_all_reminders(user: dict, db: DatabaseManager):
     
     # Apply type filter
     if type_filter != "All":
-        df = df[df['type'] == type_filter]
+        # Handle both 'type' and 'reminder_type' field names
+        if 'type' in df.columns:
+            df = df[df['type'] == type_filter]
+        elif 'reminder_type' in df.columns:
+            df = df[df['reminder_type'] == type_filter]
     
     if df.empty:
         st.info("No reminders found with selected filters")
@@ -214,46 +221,75 @@ def render_all_reminders(user: dict, db: DatabaseManager):
     
     df = df.sort_values('due_date', ascending=False)
     
-    # Display reminders
+    # Display reminders as styled cards (avoid text overlap issue with expanders)
     for _, reminder in df.iterrows():
-        with st.expander(f"{reminder['title']} - Due: {reminder['due_date'].strftime('%b %d, %Y')}"):
-            col1, col2 = st.columns(2)
-            
-            with col1:
-                st.markdown(f"**Type:** {reminder['type']}")
-                st.markdown(f"**Status:** {reminder['status'].capitalize()}")
-                if pd.notna(reminder['amount']) and reminder['amount'] > 0:
-                    st.markdown(f"**Amount:** ${reminder['amount']:,.2f}")
-            
-            with col2:
-                st.markdown(f"**Due Date:** {reminder['due_date'].strftime('%b %d, %Y')}")
-                if reminder['recurring']:
-                    st.markdown(f"**Recurring:** Yes ({reminder.get('recurrence_type', 'N/A')})")
-                st.markdown(f"**Notify:** {reminder['notify_days_before']} days before")
-            
-            if pd.notna(reminder['description']):
-                st.markdown(f"**Description:** {reminder['description']}")
-            
-            st.markdown("---")
-            
-            col1, col2, col3 = st.columns(3)
-            
-            with col1:
-                if reminder['status'] == 'pending':
-                    if st.button("Mark Complete", key=f"complete_all_{reminder['id']}", use_container_width=True):
-                        db.update_reminder_status(reminder['id'], 'completed')
-                        st.success("Marked as completed!")
-                        st.rerun()
-            
-            with col2:
-                if reminder['status'] != 'cancelled':
-                    if st.button("Cancel", key=f"cancel_{reminder['id']}", use_container_width=True):
-                        db.update_reminder_status(reminder['id'], 'cancelled')
-                        st.success("Reminder cancelled")
-                        st.rerun()
-            
-            with col3:
-                if st.button("Delete", key=f"delete_{reminder['id']}", use_container_width=True):
-                    db.delete_reminder(reminder['id'])
-                    st.success("Reminder deleted")
+        # Get reminder type
+        reminder_type = reminder.get('type') or reminder.get('reminder_type') or 'Reminder'
+        status = reminder.get('status', 'pending').capitalize()
+        
+        # Status color
+        status_colors = {
+            'Pending': '#FF9800',
+            'Completed': '#4CAF50',
+            'Cancelled': '#9E9E9E'
+        }
+        status_color = status_colors.get(status, '#FF9800')
+        
+        # Display as styled card
+        st.markdown(f"""
+        <div style="
+            background: rgba(30, 45, 65, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 12px;
+        ">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap;">
+                <div style="flex: 1; min-width: 200px;">
+                    <h4 style="color: #ffffff; margin: 0 0 8px 0; font-size: 1.1rem;">{reminder['title']}</h4>
+                    <p style="color: rgba(255,255,255,0.6); margin: 4px 0; font-size: 0.85rem;">
+                        <strong>Type:</strong> {reminder_type}
+                    </p>
+                    <p style="color: rgba(255,255,255,0.6); margin: 4px 0; font-size: 0.85rem;">
+                        <strong>Status:</strong> <span style="color: {status_color};">{status}</span>
+                    </p>
+                    {f'<p style="color: rgba(255,255,255,0.6); margin: 4px 0; font-size: 0.85rem;"><strong>Amount:</strong> ${reminder["amount"]:,.2f}</p>' if pd.notna(reminder.get('amount')) and reminder['amount'] > 0 else ''}
+                </div>
+                <div style="text-align: right; min-width: 150px;">
+                    <p style="color: rgba(255,255,255,0.8); font-size: 0.95rem; font-weight: 500; margin: 0;">
+                        {reminder['due_date'].strftime('%b %d, %Y')}
+                    </p>
+                    <p style="color: rgba(255,255,255,0.5); margin: 4px 0; font-size: 0.8rem;">
+                        Notify: {reminder.get('notify_days_before', 3)} days before
+                    </p>
+                    {f'<p style="color: rgba(255,255,255,0.5); margin: 4px 0; font-size: 0.8rem;">Recurring: {reminder.get("recurrence_type", "N/A")}</p>' if reminder.get('recurring') else ''}
+                </div>
+            </div>
+            {f'<p style="color: rgba(255,255,255,0.5); margin: 12px 0 0 0; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;"><strong>Description:</strong> {reminder["description"]}</p>' if pd.notna(reminder.get('description')) else ''}
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Action buttons in columns
+        col1, col2, col3 = st.columns(3)
+        
+        with col1:
+            if reminder.get('status') == 'pending':
+                if st.button("Mark Complete", key=f"complete_all_{reminder['id']}", use_container_width=True):
+                    db.update_reminder_status(reminder['id'], 'completed')
+                    st.success("Marked as completed!")
                     st.rerun()
+        
+        with col2:
+            if reminder.get('status') != 'cancelled':
+                if st.button("Cancel", key=f"cancel_{reminder['id']}", use_container_width=True):
+                    db.update_reminder_status(reminder['id'], 'cancelled')
+                    st.success("Reminder cancelled")
+                    st.rerun()
+        
+        with col3:
+            if st.button("Delete", key=f"delete_{reminder['id']}", use_container_width=True):
+                db.delete_reminder(reminder['id'])
+                st.success("Reminder deleted")
+                st.rerun()
+        
+        st.markdown("")  # Small spacer

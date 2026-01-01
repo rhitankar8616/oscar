@@ -47,8 +47,7 @@ def render_personal_info(user: dict, db: DatabaseManager):
                 placeholder="+1 (555) 123-4567"
             )
             
-            # Date of birth with extended range (1925 to current year - 10)
-            current_year = datetime.now().year
+            # Date of birth - allow dates from 1925 to Dec 31, 2025
             dob_value = None
             if user.get('date_of_birth'):
                 try:
@@ -60,7 +59,7 @@ def render_personal_info(user: dict, db: DatabaseManager):
                 "Date of Birth",
                 value=dob_value,
                 min_value=date(1925, 1, 1),
-                max_value=date(current_year - 10, 12, 31),
+                max_value=date(2025, 12, 31),
                 help="Select your date of birth"
             )
         
@@ -162,8 +161,11 @@ def render_account_settings(user: dict, db: DatabaseManager):
     with col2:
         st.markdown("**Member Since**")
         if user.get('created_at'):
-            created_date = datetime.strptime(user['created_at'], "%Y-%m-%d %H:%M:%S")
-            st.info(f"{created_date.strftime('%B %d, %Y')}")
+            try:
+                created_date = datetime.strptime(user['created_at'], "%Y-%m-%d %H:%M:%S")
+                st.info(f"{created_date.strftime('%B %d, %Y')}")
+            except:
+                st.info("N/A")
     
     st.markdown("---")
     

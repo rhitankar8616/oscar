@@ -48,9 +48,7 @@ def render_dashboard(user: dict, db: DatabaseManager):
                 <span style="color: rgba(255,255,255,0.6); font-size: 0.75rem; text-transform: uppercase;">Monthly Budget</span>
             </div>
             <h2 style="color: white; margin: 10px 0;">${monthly_budget:,.2f}</h2>
-            <p style="color: #FF9000; font-size: 0.85rem; margin: 0;">
-                <a href="#" style="color: #FF9000; text-decoration: none;">Update budget</a>
-            </p>
+            <p style="color: #FF9000; font-size: 0.85rem; margin: 0;">Update budget</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -115,7 +113,10 @@ def render_dashboard(user: dict, db: DatabaseManager):
                     </div>
                     """, unsafe_allow_html=True)
             
-            st.markdown(f"<p style='text-align: center; margin-top: 16px;'><a href='#' style='color: #FF9000; text-decoration: none;'>View All →</a></p>", unsafe_allow_html=True)
+            # View All button - navigates to Expenses page
+            if st.button("View All Expenses", key="view_all_expenses", use_container_width=True):
+                st.session_state.current_page = "Expenses"
+                st.rerun()
         else:
             st.info("No expenses recorded yet")
     
@@ -127,8 +128,21 @@ def render_dashboard(user: dict, db: DatabaseManager):
             # Show next 5 reminders
             upcoming = pd.DataFrame(reminders).head(5)
             for _, reminder in upcoming.iterrows():
-                due_date = datetime.strptime(reminder['date'], "%Y-%m-%d")
-                days_until = (due_date - datetime.now()).days
+                # Get due_date - handle both 'due_date' and 'date' field names
+                date_field = reminder.get('due_date') or reminder.get('date')
+                if date_field:
+                    if isinstance(date_field, str):
+                        due_date = datetime.strptime(date_field, "%Y-%m-%d")
+                    else:
+                        due_date = pd.to_datetime(date_field)
+                    days_until = (due_date - datetime.now()).days
+                    date_str = due_date.strftime("%Y-%m-%d")
+                else:
+                    days_until = 0
+                    date_str = "No date"
+                
+                # Get reminder type - handle both 'reminder_type' and 'type' field names
+                reminder_type = reminder.get('reminder_type') or reminder.get('type') or 'Reminder'
                 
                 with st.container():
                     st.markdown(f"""
@@ -136,7 +150,7 @@ def render_dashboard(user: dict, db: DatabaseManager):
                         <div style="display: flex; justify-content: space-between; align-items: center;">
                             <div>
                                 <strong style="color: white;">{reminder['title']}</strong><br>
-                                <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">{reminder['reminder_type']} • {reminder['date']}</span>
+                                <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">{reminder_type} • {date_str}</span>
                             </div>
                             <span style="color: #4CAF50; font-size: 0.9rem;">
                                 {'Today' if days_until == 0 else f'{days_until}d' if days_until > 0 else 'Overdue'}
@@ -145,8 +159,13 @@ def render_dashboard(user: dict, db: DatabaseManager):
                     </div>
                     """, unsafe_allow_html=True)
             
-            st.markdown(f"<p style='text-align: center; margin-top: 16px;'><a href='#' style='color: #4CAF50; text-decoration: none;'>Add Reminder →</a></p>", unsafe_allow_html=True)
+            # Add Reminder button - navigates to Dates page
+            if st.button("Add Reminder", key="add_reminder_btn", use_container_width=True):
+                st.session_state.current_page = "Dates"
+                st.rerun()
         else:
             st.info("No upcoming reminders")
-            if st.button("Add Reminder", use_container_width=True):
-                st.info("Navigate to Dates section to add reminders")
+            # Add Reminder button - navigates to Dates page
+            if st.button("Add Reminder", key="add_reminder_btn_empty", use_container_width=True):
+                st.session_state.current_page = "Dates"
+                st.rerun()
