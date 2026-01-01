@@ -19,34 +19,29 @@ def render_friends(user: dict, db: DatabaseManager):
         render_transactions(user, db)
 
 def render_friends_overview(user: dict, db: DatabaseManager):
-    """Render friends overview with side-by-side summary"""
+    """Render friends overview with horizontal owed/owe boxes"""
     friends = db.get_user_friends(user['id'])
     
     if not friends:
         st.info("No friends added yet. Add a friend to start tracking shared expenses!")
         return
     
-    # Summary - You're Owed and You Owe SIDE BY SIDE
     total_owed = sum(f['balance'] for f in friends if f['balance'] > 0)
     total_owe = sum(abs(f['balance']) for f in friends if f['balance'] < 0)
     
-    col1, col2 = st.columns(2)
-    
-    with col1:
-        st.markdown(f"""
-        <div style="background: rgba(76, 175, 80, 0.12); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 8px; padding: 10px; text-align: center;">
-            <p style="color: rgba(255,255,255,0.5); font-size: 0.6rem; margin: 0; text-transform: uppercase;">You're Owed</p>
-            <p style="color: #4CAF50; font-size: 1.1rem; font-weight: 700; margin: 4px 0 0 0;">${total_owed:,.2f}</p>
+    # YOU'RE OWED and YOU OWE - SIDE BY SIDE using HTML flexbox
+    st.markdown(f"""
+    <div style="display: flex; flex-direction: row; gap: 8px; margin-bottom: 16px;">
+        <div style="flex: 1; background: rgba(76, 175, 80, 0.12); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 8px; padding: 12px; text-align: center;">
+            <p style="color: rgba(255,255,255,0.6); font-size: 0.6rem; text-transform: uppercase; margin: 0;">You're Owed</p>
+            <p style="color: #4CAF50; font-size: 1.2rem; font-weight: 700; margin: 4px 0 0 0;">${total_owed:,.2f}</p>
         </div>
-        """, unsafe_allow_html=True)
-    
-    with col2:
-        st.markdown(f"""
-        <div style="background: rgba(244, 67, 54, 0.12); border: 1px solid rgba(244, 67, 54, 0.3); border-radius: 8px; padding: 10px; text-align: center;">
-            <p style="color: rgba(255,255,255,0.5); font-size: 0.6rem; margin: 0; text-transform: uppercase;">You Owe</p>
-            <p style="color: #F44336; font-size: 1.1rem; font-weight: 700; margin: 4px 0 0 0;">${total_owe:,.2f}</p>
+        <div style="flex: 1; background: rgba(244, 67, 54, 0.12); border: 1px solid rgba(244, 67, 54, 0.3); border-radius: 8px; padding: 12px; text-align: center;">
+            <p style="color: rgba(255,255,255,0.6); font-size: 0.6rem; text-transform: uppercase; margin: 0;">You Owe</p>
+            <p style="color: #F44336; font-size: 1.2rem; font-weight: 700; margin: 4px 0 0 0;">${total_owe:,.2f}</p>
         </div>
-        """, unsafe_allow_html=True)
+    </div>
+    """, unsafe_allow_html=True)
     
     st.markdown("---")
     st.markdown("#### Your Friends")
@@ -66,37 +61,41 @@ def render_friends_overview(user: dict, db: DatabaseManager):
         
         initial = friend['name'][0].upper() if friend['name'] else 'F'
         
-        # Friend card with actions on right
-        col_main, col_actions = st.columns([5, 2])
-        
-        with col_main:
-            st.markdown(f"""
-            <div style="background: rgba(30, 45, 65, 0.5); border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 10px;">
-                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 12px; flex-shrink: 0;">{initial}</div>
+        # Friend card
+        st.markdown(f"""
+        <div style="background: rgba(30, 45, 65, 0.5); border-radius: 8px; padding: 12px; margin-bottom: 4px;">
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px; flex-shrink: 0;">{initial}</div>
                 <div style="flex: 1;">
-                    <p style="color: #ffffff; font-size: 0.85rem; font-weight: 500; margin: 0;">{friend['name']}</p>
-                    <p style="color: {balance_color}; font-size: 0.7rem; margin: 2px 0 0 0;">{balance_text}</p>
+                    <p style="color: #ffffff; font-size: 0.9rem; font-weight: 500; margin: 0;">{friend['name']}</p>
+                    <p style="color: {balance_color}; font-size: 0.75rem; margin: 2px 0 0 0;">{balance_text}</p>
                 </div>
             </div>
-            """, unsafe_allow_html=True)
+        </div>
+        """, unsafe_allow_html=True)
         
-        with col_actions:
-            # Action buttons side by side
-            btn_cols = st.columns(3)
-            with btn_cols[0]:
-                if st.button("↑", key=f"lent_{friend['id']}", help="You lent"):
-                    st.session_state.selected_friend = friend['id']
-                    st.session_state.transaction_type = 'lent'
-            with btn_cols[1]:
-                if st.button("↓", key=f"bor_{friend['id']}", help="You borrowed"):
-                    st.session_state.selected_friend = friend['id']
-                    st.session_state.transaction_type = 'borrowed'
-            with btn_cols[2]:
-                if st.button("🗑", key=f"del_f_{friend['id']}", help="Delete"):
-                    db.delete_friend(user['id'], friend['id'])
-                    st.rerun()
+        # Action buttons HORIZONTAL with text labels: Lent | Borrowed | Delete
+        friend_id = friend['id']
+        btn_cols = st.columns([1, 1, 1, 2])
         
-        st.markdown('<div style="height: 4px;"></div>', unsafe_allow_html=True)
+        with btn_cols[0]:
+            if st.button("Lent", key=f"lent_{friend_id}"):
+                st.session_state.selected_friend = friend_id
+                st.session_state.transaction_type = 'lent'
+                st.rerun()
+        
+        with btn_cols[1]:
+            if st.button("Borrowed", key=f"bor_{friend_id}"):
+                st.session_state.selected_friend = friend_id
+                st.session_state.transaction_type = 'borrowed'
+                st.rerun()
+        
+        with btn_cols[2]:
+            if st.button("🗑", key=f"del_f_{friend_id}"):
+                db.delete_friend(user['id'], friend_id)
+                st.rerun()
+        
+        st.markdown('<div style="height: 8px;"></div>', unsafe_allow_html=True)
     
     # Quick transaction form
     if 'selected_friend' in st.session_state and st.session_state.selected_friend:
@@ -218,16 +217,16 @@ def render_transactions(user: dict, db: DatabaseManager):
                 trans_date = trans['date']
             
             st.markdown(f"""
-            <div style="background: rgba(30, 45, 65, 0.4); border-radius: 6px; padding: 8px 10px; margin-bottom: 4px;">
+            <div style="background: rgba(30, 45, 65, 0.4); border-radius: 6px; padding: 10px; margin-bottom: 6px;">
                 <div style="display: flex; justify-content: space-between; align-items: center;">
                     <div style="display: flex; align-items: center; gap: 8px;">
                         <span style="color: {color}; font-size: 1rem; font-weight: bold;">{icon}</span>
                         <div>
-                            <p style="color: #ffffff; font-size: 0.8rem; font-weight: 500; margin: 0;">{trans['description']}</p>
-                            <p style="color: rgba(255,255,255,0.4); font-size: 0.6rem; margin: 0;">{text} • {trans_date}</p>
+                            <p style="color: #ffffff; font-size: 0.85rem; font-weight: 500; margin: 0;">{trans['description']}</p>
+                            <p style="color: rgba(255,255,255,0.4); font-size: 0.65rem; margin: 0;">{text} • {trans_date}</p>
                         </div>
                     </div>
-                    <p style="color: {color}; font-size: 0.9rem; font-weight: 600; margin: 0;">${trans['amount']:,.2f}</p>
+                    <p style="color: {color}; font-size: 0.95rem; font-weight: 600; margin: 0;">${trans['amount']:,.2f}</p>
                 </div>
             </div>
             """, unsafe_allow_html=True)
