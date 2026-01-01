@@ -30,13 +30,11 @@ st.markdown("""
         background: linear-gradient(135deg, #1a2332 0%, #2d3e50 100%);
     }
     
-    /* Hide sidebar collapse button */
     [data-testid="collapsedControl"],
     [data-testid="stSidebarCollapseButton"] {
         display: none !important;
     }
     
-    /* Desktop Sidebar */
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%) !important;
         border-right: 1px solid rgba(255, 255, 255, 0.05);
@@ -178,7 +176,7 @@ st.markdown("""
         
         .block-container {
             padding-top: 70px !important;
-            padding-bottom: 80px !important;
+            padding-bottom: 85px !important;
             padding-left: 8px !important;
             padding-right: 8px !important;
             max-width: 100% !important;
@@ -216,6 +214,15 @@ st.markdown("""
         [role="option"] { padding: 6px 8px !important; font-size: 0.8rem !important; }
         .stAlert { padding: 6px 8px !important; border-radius: 6px !important; }
     }
+    
+    @media (min-width: 769px) {
+        .mobile-top-header {
+            display: none !important;
+        }
+        .mobile-nav-container {
+            display: none !important;
+        }
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -234,11 +241,8 @@ def render_mobile_top_bar(user: dict):
     initial = user.get('full_name', 'U')[0].upper() if user else 'U'
     
     st.markdown(f"""
-    <style>
-    @media (min-width: 769px) {{ .mobile-top-bar {{ display: none !important; }} }}
-    </style>
-    <div class="mobile-top-bar" style="
-        display: flex;
+    <div class="mobile-top-header" style="
+        display: none;
         position: fixed;
         top: 0;
         left: 0;
@@ -264,98 +268,123 @@ def render_mobile_top_bar(user: dict):
             color: white; font-weight: 600; font-size: 12px;
             border: 2px solid rgba(255,255,255,0.2);">{initial}</div>
     </div>
+    <style>
+    @media (max-width: 768px) {{
+        .mobile-top-header {{ display: flex !important; }}
+    }}
+    </style>
     """, unsafe_allow_html=True)
 
 
 def render_mobile_bottom_nav():
-    """Render mobile bottom navigation - HORIZONTAL using HTML"""
+    """Render mobile bottom navigation bar"""
     
-    # Get current page to highlight active
-    current = st.session_state.get('current_page', 'Dashboard')
+    current_page = st.session_state.get('current_page', 'Dashboard')
     
-    nav_items = [
-        ("🏠", "Dashboard", "Home"),
-        ("💰", "Expenses", "Expense"),
-        ("📅", "Dates", "Dates"),
-        ("💳", "Budget Tracker", "Budget"),
-        ("👥", "Friends", "Friends"),
-        ("📊", "Analytics", "Stats"),
-        ("👤", "Profile", "Profile")
+    # Navigation items with SVG icons
+    nav_config = [
+        ("Dashboard", "Home", "M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z M9 22V12h6v10"),
+        ("Expenses", "Expense", "M12 1v22 M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"),
+        ("Dates", "Dates", "M19 4H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z M16 2v4 M8 2v4 M3 10h18"),
+        ("Budget Tracker", "Budget", "M21 4H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z M1 10h22"),
+        ("Friends", "Friends", "M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2 M9 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8z M23 21v-2a4 4 0 0 0-3-3.87 M16 3.13a4 4 0 0 1 0 7.75"),
+        ("Analytics", "Stats", "M18 20V10 M12 20V4 M6 20v-6"),
+        ("Profile", "Profile", "M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2 M12 7a4 4 0 1 0 0 8 4 4 0 0 0 0-8z"),
     ]
     
-    # Build nav items HTML
-    nav_html = ""
-    for icon, page, label in nav_items:
-        is_active = current == page
-        active_style = "color: #FF9000; background: rgba(255, 144, 0, 0.15);" if is_active else "color: rgba(255,255,255,0.6);"
-        nav_html += f'''
+    # Build the nav items
+    nav_items_html = ""
+    for page, label, path in nav_config:
+        is_active = current_page == page
+        color = "#FF9000" if is_active else "rgba(255,255,255,0.5)"
+        bg = "rgba(255,144,0,0.15)" if is_active else "transparent"
+        
+        nav_items_html += f'''
         <div style="flex: 1; display: flex; flex-direction: column; align-items: center; 
-            padding: 6px 2px; border-radius: 8px; cursor: pointer; {active_style}" 
-            class="nav-item-{page.replace(' ', '-')}">
-            <span style="font-size: 16px;">{icon}</span>
-            <span style="font-size: 9px; margin-top: 2px;">{label}</span>
+            padding: 6px 2px; border-radius: 8px; background: {bg};">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="{color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="{path}"></path>
+            </svg>
+            <span style="font-size: 8px; color: {color}; margin-top: 2px; font-weight: 500;">{label}</span>
         </div>
         '''
     
+    # Render the visual nav bar (non-interactive)
     st.markdown(f"""
-    <style>
-    @media (min-width: 769px) {{ .mobile-bottom-nav {{ display: none !important; }} }}
-    </style>
-    <div class="mobile-bottom-nav" style="
-        display: flex;
+    <div class="mobile-nav-container" style="
+        display: none;
         position: fixed;
         bottom: 0;
         left: 0;
         right: 0;
-        height: 60px;
+        height: 62px;
         background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%);
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-        z-index: 99999;
-        padding: 4px 8px 8px 8px;
+        border-top: 1px solid rgba(255, 255, 255, 0.1);
+        z-index: 99998;
+        padding: 6px 8px 10px 8px;
         flex-direction: row;
         justify-content: space-around;
         align-items: center;
     ">
-        {nav_html}
+        {nav_items_html}
     </div>
+    <style>
+    @media (max-width: 768px) {{
+        .mobile-nav-container {{ display: flex !important; }}
+    }}
+    </style>
     """, unsafe_allow_html=True)
     
-    # Streamlit buttons for navigation (hidden but functional)
-    st.markdown('<div style="position: fixed; bottom: 0; left: 0; right: 0; z-index: 100000; height: 60px; display: flex; flex-direction: row;">', unsafe_allow_html=True)
-    
-    cols = st.columns(7)
-    for idx, (icon, page, label) in enumerate(nav_items):
-        with cols[idx]:
-            # Invisible button overlay
-            if st.button(f"{icon}", key=f"nav_mob_{page}", help=label):
-                st.session_state.current_page = page
-                st.rerun()
-    
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    # Style to make buttons invisible but clickable
+    # Invisible clickable buttons overlay
     st.markdown("""
     <style>
     @media (max-width: 768px) {
-        [data-testid="stHorizontalBlock"]:has([key*="nav_mob"]) {
+        .nav-buttons-row {
             position: fixed !important;
             bottom: 0 !important;
             left: 0 !important;
             right: 0 !important;
-            z-index: 100001 !important;
-            height: 60px !important;
+            z-index: 99999 !important;
+            height: 62px !important;
             background: transparent !important;
+            padding: 0 8px !important;
         }
-        
-        [data-testid="stHorizontalBlock"]:has([key*="nav_mob"]) .stButton > button {
+        .nav-buttons-row [data-testid="stHorizontalBlock"] {
+            height: 62px !important;
+        }
+        .nav-buttons-row [data-testid="column"] {
+            padding: 0 !important;
+        }
+        .nav-buttons-row .stButton {
+            height: 62px !important;
+        }
+        .nav-buttons-row .stButton > button {
+            height: 62px !important;
             background: transparent !important;
             border: none !important;
-            height: 60px !important;
             opacity: 0 !important;
+            width: 100% !important;
+        }
+    }
+    @media (min-width: 769px) {
+        .nav-buttons-row {
+            display: none !important;
         }
     }
     </style>
     """, unsafe_allow_html=True)
+    
+    st.markdown('<div class="nav-buttons-row">', unsafe_allow_html=True)
+    cols = st.columns(7)
+    pages = ["Dashboard", "Expenses", "Dates", "Budget Tracker", "Friends", "Analytics", "Profile"]
+    
+    for idx, page in enumerate(pages):
+        with cols[idx]:
+            if st.button(".", key=f"mnav_{page}"):
+                st.session_state.current_page = page
+                st.rerun()
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 def render_sidebar(user: dict):
