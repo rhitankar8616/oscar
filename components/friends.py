@@ -1,272 +1,271 @@
-"""Friends component for expense splitting."""
 import streamlit as st
+import pandas as pd
 from datetime import datetime
 from database.db_manager import DatabaseManager
-from utils.formatters import format_currency, format_date
-from utils.validators import validate_amount, validate_phone, sanitize_input
 
 def render_friends(user: dict, db: DatabaseManager):
-    """Render friends and expense splitting page."""
+    """Render friends page"""
+    st.markdown("### Friends & Shared Expenses")
     
-    st.markdown("#### Friends")
-    st.caption("Split expenses and track balances")
+    tab1, tab2, tab3 = st.tabs(["Overview", "Add Friend", "Transactions"])
     
-    col1, col2 = st.columns([3, 1])
-    with col2:
-        if st.button("Add Friend", type="primary", use_container_width=True):
-            st.session_state.show_add_friend = True
+    with tab1:
+        render_friends_overview(user, db)
     
-    st.markdown("<br>", unsafe_allow_html=True)
+    with tab2:
+        render_add_friend(user, db)
     
-    if st.session_state.get('show_add_friend', False):
-        with st.container():
-            st.markdown("### Add New Friend")
-            
-            with st.form("add_friend_form"):
-                form_col1, form_col2 = st.columns(2)
-                
-                with form_col1:
-                    name = st.text_input("Name *", placeholder="e.g., John Doe")
-                    phone = st.text_input("Phone", placeholder="9876543210")
-                
-                with form_col2:
-                    email = st.text_input("Email", placeholder="john@example.com")
-                    notes = st.text_area("Notes", placeholder="Additional information...")
-                
-                submit_col1, submit_col2 = st.columns([1, 1])
-                
-                with submit_col1:
-                    submitted = st.form_submit_button("Add Friend", use_container_width=True, type="primary")
-                
-                with submit_col2:
-                    cancelled = st.form_submit_button("Cancel", use_container_width=True)
-                
-                if cancelled:
-                    st.session_state.show_add_friend = False
-                    st.rerun()
-                
-                if submitted:
-                    if not name:
-                        st.error("Please enter a name")
-                    else:
-                        validated_phone = None
-                        if phone:
-                            is_valid, validated_phone, msg = validate_phone(phone)
-                            if not is_valid:
-                                st.error(msg)
-                                validated_phone = None
-                        
-                        friend_id = db.add_friend(
-                            user_id=user['id'],
-                            name=sanitize_input(name),
-                            phone=validated_phone,
-                            email=email if email else None,
-                            notes=sanitize_input(notes) if notes else None
-                        )
-                        
-                        if friend_id:
-                            st.success("Friend added successfully!")
-                            st.session_state.show_add_friend = False
-                            st.rerun()
-                        else:
-                            st.error("Failed to add friend")
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
+    with tab3:
+        render_transactions(user, db)
+
+def render_friends_overview(user: dict, db: DatabaseManager):
+    """Render friends overview"""
     friends = db.get_user_friends(user['id'])
     
-    if friends:
-        summary_col1, summary_col2, summary_col3 = st.columns(3)
-        
-        total_friends = len(friends)
-        total_owed_to_you = sum(f['balance'] for f in friends if f['balance'] > 0)
-        total_you_owe = sum(abs(f['balance']) for f in friends if f['balance'] < 0)
-        
-        with summary_col1:
-            st.markdown(f"""
-            <div style='background-color: #2C3E50; padding: 20px; border-radius: 10px; text-align: center;'>
-                <p style='color: #888; font-size: 14px; margin: 0;'>Total Friends</p>
-                <h2 style='color: white; margin: 10px 0;'>{total_friends}</h2>
-                <p style='color: #888; font-size: 12px; margin: 0;'>People you track with</p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with summary_col2:
-            st.markdown(f"""
-            <div style='background-color: #2C3E50; padding: 20px; border-radius: 10px; text-align: center;'>
-                <p style='color: #888; font-size: 14px; margin: 0;'>You Get Back</p>
-                <h2 style='color: #4CAF50; margin: 10px 0;'>{format_currency(total_owed_to_you, 'USD')}</h2>
-                <p style='color: #888; font-size: 12px; margin: 0;'>Total owed to you</p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        with summary_col3:
-            st.markdown(f"""
-            <div style='background-color: #2C3E50; padding: 20px; border-radius: 10px; text-align: center;'>
-                <p style='color: #888; font-size: 14px; margin: 0;'>You Owe</p>
-                <h2 style='color: #F44336; margin: 10px 0;'>{format_currency(total_you_owe, 'USD')}</h2>
-                <p style='color: #888; font-size: 12px; margin: 0;'>Total you owe</p>
-            </div>
-            """, unsafe_allow_html=True)
-        
-        st.markdown("<br><br>", unsafe_allow_html=True)
-        
-        for friend in friends:
-            with st.container():
-                friend_col1, friend_col2, friend_col3 = st.columns([3, 2, 1])
-                
-                with friend_col1:
-                    st.markdown(f"### {friend['name']}")
-                    if friend['phone']:
-                        st.caption(f"📞 {friend['phone']}")
-                    if friend['email']:
-                        st.caption(f"📧 {friend['email']}")
-                
-                with friend_col2:
-                    if friend['balance'] > 0:
-                        st.markdown(f"<p style='color: #4CAF50; font-size: 20px; font-weight: bold;'>They owe you {format_currency(friend['balance'], 'USD')}</p>", unsafe_allow_html=True)
-                    elif friend['balance'] < 0:
-                        st.markdown(f"<p style='color: #F44336; font-size: 20px; font-weight: bold;'>You owe {format_currency(abs(friend['balance']), 'USD')}</p>", unsafe_allow_html=True)
-                    else:
-                        st.markdown("<p style='color: #888; font-size: 20px;'>All settled up!</p>", unsafe_allow_html=True)
-                        st.caption("No outstanding balance")
-                
-                with friend_col3:
-                    if st.button("View", key=f"view_{friend['id']}", use_container_width=True):
-                        st.session_state.selected_friend = friend['id']
-                        st.rerun()
-                    
-                    if st.button("Delete", key=f"del_{friend['id']}", use_container_width=True):
-                        if db.delete_friend(user['id'], friend['id']):
-                            st.success("Friend deleted!")
-                            st.rerun()
-                
-                st.markdown("---")
-    else:
-        st.info("No friends added yet. Add friends to split expenses!")
-        
-        if st.button("Add Your First Friend", use_container_width=True):
-            st.session_state.show_add_friend = True
-            st.rerun()
+    if not friends:
+        st.info("No friends added yet. Add a friend to start tracking shared expenses!")
+        return
     
-    if st.session_state.get('selected_friend'):
-        show_friend_detail(user, db, st.session_state.selected_friend)
+    # Summary
+    total_owed = sum(f['balance'] for f in friends if f['balance'] > 0)
+    total_owe = sum(abs(f['balance']) for f in friends if f['balance'] < 0)
+    
+    col1, col2 = st.columns(2)
+    with col1:
+        st.markdown(f"""
+        <div style="background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 10px; padding: 12px; text-align: center;">
+            <p style="color: rgba(255,255,255,0.6); font-size: 0.7rem; margin: 0; text-transform: uppercase;">You're Owed</p>
+            <p style="color: #4CAF50; font-size: 1.3rem; font-weight: 700; margin: 4px 0 0 0;">${total_owed:,.2f}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        st.markdown(f"""
+        <div style="background: rgba(244, 67, 54, 0.15); border: 1px solid rgba(244, 67, 54, 0.3); border-radius: 10px; padding: 12px; text-align: center;">
+            <p style="color: rgba(255,255,255,0.6); font-size: 0.7rem; margin: 0; text-transform: uppercase;">You Owe</p>
+            <p style="color: #F44336; font-size: 1.3rem; font-weight: 700; margin: 4px 0 0 0;">${total_owe:,.2f}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    st.markdown("#### Your Friends")
+    
+    for friend in friends:
+        balance = friend['balance']
+        
+        if balance > 0:
+            balance_color = "#4CAF50"
+            balance_text = f"owes you ${balance:,.2f}"
+        elif balance < 0:
+            balance_color = "#F44336"
+            balance_text = f"you owe ${abs(balance):,.2f}"
+        else:
+            balance_color = "#9E9E9E"
+            balance_text = "settled up"
+        
+        initial = friend['name'][0].upper() if friend['name'] else 'F'
+        
+        st.markdown(f"""
+        <div style="
+            background: rgba(30, 45, 65, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        ">
+            <div style="
+                width: 36px;
+                height: 36px;
+                background: linear-gradient(135deg, #3b82f6, #6366f1);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: white;
+                font-weight: 600;
+                font-size: 14px;
+                flex-shrink: 0;
+            ">{initial}</div>
+            <div style="flex: 1;">
+                <p style="color: #ffffff; font-size: 0.9rem; font-weight: 600; margin: 0;">{friend['name']}</p>
+                <p style="color: {balance_color}; font-size: 0.75rem; margin: 2px 0 0 0;">{balance_text}</p>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        
+        # Compact action buttons
+        cols = st.columns([1, 1, 1, 2])
+        
+        with cols[0]:
+            if st.button("+ Lent", key=f"lent_{friend['id']}", help="You lent money"):
+                st.session_state.selected_friend = friend['id']
+                st.session_state.transaction_type = 'lent'
+        
+        with cols[1]:
+            if st.button("+ Borrowed", key=f"borrowed_{friend['id']}", help="You borrowed"):
+                st.session_state.selected_friend = friend['id']
+                st.session_state.transaction_type = 'borrowed'
+        
+        with cols[2]:
+            if st.button("✕", key=f"del_friend_{friend['id']}", help="Delete friend"):
+                db.delete_friend(user['id'], friend['id'])
+                st.rerun()
+        
+        st.markdown('<div style="height: 4px;"></div>', unsafe_allow_html=True)
+    
+    # Quick add transaction modal
+    if 'selected_friend' in st.session_state and st.session_state.selected_friend:
+        render_quick_transaction(user, db)
 
-
-def show_friend_detail(user: dict, db: DatabaseManager, friend_id: int):
-    """Show friend transaction details."""
+def render_quick_transaction(user: dict, db: DatabaseManager):
+    """Render quick transaction form"""
+    friend_id = st.session_state.selected_friend
+    trans_type = st.session_state.get('transaction_type', 'lent')
     
     friends = db.get_user_friends(user['id'])
     friend = next((f for f in friends if f['id'] == friend_id), None)
     
     if not friend:
         st.session_state.selected_friend = None
-        st.rerun()
         return
     
     st.markdown("---")
-    st.markdown(f"## {friend['name']}")
+    st.markdown(f"#### Quick Transaction with {friend['name']}")
     
-    if friend['phone']:
-        st.caption(f"📞 {friend['phone']}")
-    
-    if friend['balance'] > 0:
-        st.markdown(f"<div style='background-color: #2C3E50; padding: 20px; border-radius: 10px; text-align: center;'><p style='color: #4CAF50; font-size: 24px; font-weight: bold;'>They owe you {format_currency(friend['balance'], 'USD')}</p></div>", unsafe_allow_html=True)
-    elif friend['balance'] < 0:
-        st.markdown(f"<div style='background-color: #2C3E50; padding: 20px; border-radius: 10px; text-align: center;'><p style='color: #F44336; font-size: 24px; font-weight: bold;'>You owe {format_currency(abs(friend['balance']), 'USD')}</p></div>", unsafe_allow_html=True)
-    else:
-        st.markdown("<div style='background-color: #2C3E50; padding: 20px; border-radius: 10px; text-align: center;'><p style='color: #888; font-size: 24px;'>All settled up!</p><p style='color: #888; font-size: 14px;'>No outstanding balance</p></div>", unsafe_allow_html=True)
-    
-    st.markdown("<br>", unsafe_allow_html=True)
-    
-    if st.button("Add Transaction", type="primary"):
-        st.session_state.show_add_transaction = True
-    
-    if st.button("Back to Friends"):
-        st.session_state.selected_friend = None
-        st.rerun()
-    
-    if st.session_state.get('show_add_transaction', False):
-        with st.form("add_transaction_form"):
-            st.markdown("### Add Transaction")
-            
-            trans_col1, trans_col2 = st.columns(2)
-            
-            with trans_col1:
-                transaction_type = st.radio("Transaction Type", 
-                                           ["You lent money", "You borrowed money"],
-                                           horizontal=True)
-                amount = st.text_input("Amount ($) *", placeholder="10.00")
-            
-            with trans_col2:
-                description = st.text_input("Description *", placeholder="e.g., Groceries at Walmart")
-                date = st.date_input("Date *", value=datetime.now())
-            
-            submit_col1, submit_col2 = st.columns([1, 1])
-            
-            with submit_col1:
-                submitted = st.form_submit_button("Add Transaction", use_container_width=True, type="primary")
-            
-            with submit_col2:
-                cancelled = st.form_submit_button("Cancel", use_container_width=True)
-            
-            if cancelled:
-                st.session_state.show_add_transaction = False
+    with st.form("quick_transaction"):
+        amount = st.number_input("Amount", min_value=0.01, step=1.0)
+        description = st.text_input("Description", placeholder="e.g., Lunch")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            if st.form_submit_button("Add Transaction", type="primary", use_container_width=True):
+                if amount > 0:
+                    db.add_transaction(
+                        user_id=user['id'],
+                        friend_id=friend_id,
+                        transaction_type=trans_type,
+                        amount=amount,
+                        description=description or "Transaction",
+                        date=datetime.now().strftime("%Y-%m-%d")
+                    )
+                    st.session_state.selected_friend = None
+                    st.success("Transaction added!")
+                    st.rerun()
+        
+        with col2:
+            if st.form_submit_button("Cancel", use_container_width=True):
+                st.session_state.selected_friend = None
                 st.rerun()
-            
-            if submitted:
-                if not amount or not description:
-                    st.error("Please fill in all required fields")
+
+def render_add_friend(user: dict, db: DatabaseManager):
+    """Render add friend form"""
+    st.markdown("#### Add New Friend")
+    
+    with st.form("add_friend_form", clear_on_submit=True):
+        name = st.text_input("Name*", placeholder="Friend's name")
+        
+        col1, col2 = st.columns(2)
+        with col1:
+            phone = st.text_input("Phone (optional)")
+        with col2:
+            email = st.text_input("Email (optional)")
+        
+        notes = st.text_area("Notes (optional)")
+        
+        if st.form_submit_button("Add Friend", type="primary", use_container_width=True):
+            if not name:
+                st.error("Please enter a name")
+            else:
+                result = db.add_friend(
+                    user_id=user['id'],
+                    name=name,
+                    phone=phone if phone else None,
+                    email=email if email else None,
+                    notes=notes if notes else None
+                )
+                
+                if result:
+                    st.success(f"{name} added!")
+                    st.rerun()
                 else:
-                    is_valid, amount_float, error_msg = validate_amount(amount)
-                    
-                    if not is_valid:
-                        st.error(error_msg)
-                    else:
-                        trans_type = "lent" if transaction_type == "You lent money" else "borrowed"
-                        
-                        transaction_id = db.add_transaction(
-                            user_id=user['id'],
-                            friend_id=friend_id,
-                            transaction_type=trans_type,
-                            amount=amount_float,
-                            description=sanitize_input(description),
-                            date=date.strftime("%Y-%m-%d")
-                        )
-                        
-                        if transaction_id:
-                            st.success("Transaction added successfully!")
-                            st.session_state.show_add_transaction = False
-                            st.rerun()
-                        else:
-                            st.error("Failed to add transaction")
+                    st.error("Failed to add friend")
+
+def render_transactions(user: dict, db: DatabaseManager):
+    """Render transactions tab"""
+    st.markdown("#### Transaction History")
     
-    st.markdown("<br>", unsafe_allow_html=True)
-    st.markdown("### Active Transactions")
+    friends = db.get_user_friends(user['id'])
     
-    transactions = db.get_friend_transactions(user['id'], friend_id)
+    if not friends:
+        st.info("Add friends to see transactions")
+        return
     
-    if transactions:
+    friend_options = {f['name']: f['id'] for f in friends}
+    selected_name = st.selectbox("Select Friend", list(friend_options.keys()))
+    
+    if selected_name:
+        friend_id = friend_options[selected_name]
+        transactions = db.get_friend_transactions(user['id'], friend_id)
+        
+        if not transactions:
+            st.info(f"No transactions with {selected_name}")
+            return
+        
         for trans in transactions:
-            with st.container():
-                trans_col1, trans_col2, trans_col3 = st.columns([3, 2, 1])
-                
-                with trans_col1:
-                    st.markdown(f"**{trans['description']}**")
-                    st.caption(f"{format_date(trans['date'])}")
-                
-                with trans_col2:
-                    color = "#4CAF50" if trans['transaction_type'] == "lent" else "#F44336"
-                    label = "you lent" if trans['transaction_type'] == "lent" else "you borrowed"
-                    st.markdown(f"<p style='color: {color}; font-weight: bold;'>{format_currency(trans['amount'], 'USD')}</p>", unsafe_allow_html=True)
-                    st.caption(label)
-                
-                with trans_col3:
-                    if st.button("Delete", key=f"del_trans_{trans['id']}"):
-                        if db.delete_transaction(user['id'], trans['id']):
-                            st.success("Transaction deleted!")
-                            st.rerun()
-                
-                st.markdown("---")
-    else:
-        st.info("No transactions yet")
+            trans_type = trans['transaction_type']
+            
+            if trans_type == 'lent':
+                icon = "↑"
+                color = "#4CAF50"
+                text = "You lent"
+            else:
+                icon = "↓"
+                color = "#F44336"
+                text = "You borrowed"
+            
+            try:
+                trans_date = datetime.strptime(trans['date'], "%Y-%m-%d").strftime("%b %d, %Y")
+            except:
+                trans_date = trans['date']
+            
+            st.markdown(f"""
+            <div style="
+                background: rgba(30, 45, 65, 0.4);
+                border-radius: 8px;
+                padding: 10px 12px;
+                margin-bottom: 6px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            ">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="color: {color}; font-size: 1.1rem; font-weight: bold;">{icon}</span>
+                    <div>
+                        <p style="color: #ffffff; font-size: 0.85rem; font-weight: 500; margin: 0;">{trans['description']}</p>
+                        <p style="color: rgba(255,255,255,0.5); font-size: 0.7rem; margin: 0;">{text} | {trans_date}</p>
+                    </div>
+                </div>
+                <p style="color: {color}; font-size: 0.95rem; font-weight: 600; margin: 0;">${trans['amount']:,.2f}</p>
+            </div>
+            """, unsafe_allow_html=True)
+    
+    # Button styling for mobile
+    st.markdown("""
+    <style>
+    @media (max-width: 768px) {
+        button:has(div:contains("+ Lent")), button:has(div:contains("+ Borrowed")) {
+            padding: 4px 8px !important;
+            font-size: 0.7rem !important;
+        }
+        button:has(div:contains("✕")) {
+            background: rgba(255, 80, 80, 0.15) !important;
+            color: #ff6b6b !important;
+            border: 1px solid rgba(255, 80, 80, 0.3) !important;
+            padding: 4px 10px !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
