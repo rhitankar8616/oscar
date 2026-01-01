@@ -22,7 +22,6 @@ def render_add_expense(user: dict, db: DatabaseManager):
     with st.form("expense_form", clear_on_submit=True):
         title = st.text_input("Title*", placeholder="e.g., Grocery shopping")
         
-        # Two columns for compact layout
         col1, col2 = st.columns(2)
         with col1:
             amount = st.number_input("Amount*", min_value=0.01, step=0.01)
@@ -39,11 +38,9 @@ def render_add_expense(user: dict, db: DatabaseManager):
                 ["Cash", "Credit Card", "Debit Card", "UPI", "Net Banking", "Other"]
             )
         
-        notes = st.text_area("Notes (optional)", placeholder="Add any notes...", height=60)
+        notes = st.text_area("Notes (optional)", placeholder="Add notes...", height=60)
         
-        submit = st.form_submit_button("Add Expense", use_container_width=True, type="primary")
-        
-        if submit:
+        if st.form_submit_button("Add Expense", use_container_width=True, type="primary"):
             if not title:
                 st.error("Please enter a title")
             elif amount <= 0:
@@ -58,7 +55,6 @@ def render_add_expense(user: dict, db: DatabaseManager):
                     date=date.strftime("%Y-%m-%d"),
                     notes=notes
                 )
-                
                 if success:
                     st.success("Expense added!")
                     st.rerun()
@@ -66,28 +62,26 @@ def render_add_expense(user: dict, db: DatabaseManager):
                     st.error("Failed to add expense")
 
 def render_view_expenses(user: dict, db: DatabaseManager):
-    """Render view expenses section with compact list"""
+    """Render view expenses - compact with delete inside card"""
     st.markdown("#### Your Expenses")
     
-    # Filters side by side
+    # Filters side by side using HTML
     col1, col2 = st.columns(2)
     with col1:
         category_filter = st.selectbox(
             "Category",
             ["All Categories", "Food & Dining", "Transportation", "Shopping", 
              "Entertainment", "Bills & Utilities", "Healthcare", "Education", "Travel", "Other"],
-            key="expense_cat_filter"
+            key="exp_cat"
         )
     
     with col2:
         months = ["All Time"]
-        current_year = datetime.now().year
-        for i in range(12):
-            month_date = datetime(current_year, 12 - i, 1)
-            months.append(month_date.strftime("%Y-%m"))
-        month_filter = st.selectbox("Month", months, key="expense_month_filter")
+        for i in range(6):
+            m = (datetime.now().replace(day=1) - pd.DateOffset(months=i))
+            months.append(m.strftime("%Y-%m"))
+        month_filter = st.selectbox("Month", months, key="exp_month")
     
-    # Get expenses
     category = category_filter if category_filter != "All Categories" else None
     month = month_filter if month_filter != "All Time" else None
     expenses = db.get_user_expenses(user['id'], category=category, month=month)
@@ -96,7 +90,6 @@ def render_view_expenses(user: dict, db: DatabaseManager):
         st.info("No expenses found")
         return
     
-    # Total summary - compact
     total = sum(e['amount'] for e in expenses)
     st.markdown(f"""
     <div style="background: rgba(30, 45, 65, 0.5); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px;">
@@ -106,35 +99,49 @@ def render_view_expenses(user: dict, db: DatabaseManager):
     </div>
     """, unsafe_allow_html=True)
     
-    # Compact expense list with delete button on right
+    # Expense list with delete button INSIDE the card
     for expense in expenses:
         expense_id = expense['id']
         
         try:
             exp_date = datetime.strptime(expense['date'], "%Y-%m-%d").strftime("%b %d")
         except:
-            exp_date = expense['date'][:10] if expense['date'] else ""
+            exp_date = str(expense['date'])[:10] if expense['date'] else ""
         
-        # Create columns: main content (large) + delete button (small)
-        col_main, col_del = st.columns([6, 1])
-        
-        with col_main:
-            st.markdown(f"""
-            <div style="background: rgba(30, 45, 65, 0.4); border-radius: 8px; padding: 8px 10px; border-left: 2px solid #FF9000;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div style="flex: 1; min-width: 0;">
-                        <p style="color: #ffffff; font-size: 0.82rem; font-weight: 500; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{expense['title']}</p>
-                        <p style="color: rgba(255,255,255,0.4); font-size: 0.65rem; margin: 0;">{expense['category']} • {expense['payment_method']} • {exp_date}</p>
-                    </div>
-                    <p style="color: #FF9000; font-size: 0.9rem; font-weight: 600; margin: 0 0 0 8px;">${expense['amount']:,.2f}</p>
+        # Card with delete button inside, using flexbox
+        st.markdown(f"""
+        <div style="background: rgba(30, 45, 65, 0.4); border-radius: 8px; padding: 10px; margin-bottom: 6px; border-left: 3px solid #FF9000;">
+            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
+                <div style="flex: 1; min-width: 0;">
+                    <p style="color: #ffffff; font-size: 0.85rem; font-weight: 500; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{expense['title']}</p>
+                    <p style="color: rgba(255,255,255,0.4); font-size: 0.65rem; margin: 2px 0 0 0;">{expense['category']} • {expense['payment_method']} • {exp_date}</p>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span style="color: #FF9000; font-size: 0.95rem; font-weight: 600;">${expense['amount']:,.2f}</span>
                 </div>
             </div>
-            """, unsafe_allow_html=True)
+        </div>
+        """, unsafe_allow_html=True)
         
-        with col_del:
+        # Delete button right after HTML (will appear inline on mobile)
+        col_spacer, col_btn = st.columns([5, 1])
+        with col_btn:
             if st.button("🗑", key=f"del_{expense_id}", help="Delete"):
                 db.delete_expense(user['id'], expense_id)
                 st.rerun()
         
-        # Minimal spacing between items
-        st.markdown('<div style="height: 2px;"></div>', unsafe_allow_html=True)
+        # Custom CSS to position delete button
+        st.markdown(f"""
+        <style>
+        [data-testid="stHorizontalBlock"]:has(button[key="del_{expense_id}"]) {{
+            margin-top: -45px !important;
+            margin-bottom: 8px !important;
+        }}
+        [data-testid="stHorizontalBlock"]:has(button[key="del_{expense_id}"]) .stButton > button {{
+            background: rgba(244, 67, 54, 0.15) !important;
+            border: 1px solid rgba(244, 67, 54, 0.3) !important;
+            padding: 4px 8px !important;
+            min-height: 28px !important;
+        }}
+        </style>
+        """, unsafe_allow_html=True)
