@@ -33,6 +33,39 @@ st.markdown("""
         background: linear-gradient(135deg, #1a2332 0%, #2d3e50 100%);
     }
     
+    /* HIDE SIDEBAR COLLAPSE BUTTON - PREVENTS SIDEBAR FROM DISAPPEARING */
+    [data-testid="collapsedControl"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* Also hide any other collapse controls */
+    button[kind="headerNoPadding"],
+    [data-testid="stSidebarCollapseButton"],
+    .css-1rs6os,
+    [data-testid="baseButton-headerNoPadding"] {
+        display: none !important;
+        visibility: hidden !important;
+    }
+    
+    /* FORCE SIDEBAR TO ALWAYS BE VISIBLE */
+    [data-testid="stSidebar"] {
+        transform: none !important;
+        visibility: visible !important;
+        position: relative !important;
+        left: 0 !important;
+    }
+    
+    [data-testid="stSidebarContent"] {
+        display: block !important;
+        visibility: visible !important;
+    }
+    
+    /* Ensure app doesn't shift when sidebar would collapse */
+    .stApp > header + div {
+        margin-left: 0 !important;
+    }
+    
     /* Sidebar styling - darker navy like Base44 */
     [data-testid="stSidebar"] {
         background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%) !important;
@@ -43,11 +76,30 @@ st.markdown("""
     
     [data-testid="stSidebar"] > div:first-child {
         background: transparent !important;
-        padding-top: 1.5rem !important;
+        padding-top: 1rem !important;
     }
     
     [data-testid="stSidebarContent"] {
         background: transparent !important;
+    }
+    
+    /* REMOVE ALL EXTRA SPACING IN SIDEBAR */
+    [data-testid="stSidebar"] .stElementContainer {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    [data-testid="stSidebar"] .element-container {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    [data-testid="stSidebar"] [data-testid="stVerticalBlock"] {
+        gap: 0 !important;
+    }
+    
+    [data-testid="stSidebar"] [data-testid="stVerticalBlockBorderWrapper"] {
+        gap: 0 !important;
     }
     
     /* Main content area */
@@ -256,9 +308,16 @@ st.markdown("""
         transform: translateY(-2px);
     }
     
-    /* Sidebar navigation buttons - MINIMAL SPACING */
+    /* SIDEBAR NAVIGATION - COMPACT SPACING */
     [data-testid="stSidebar"] .stButton {
-        margin-bottom: 0px !important;
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    [data-testid="stSidebar"] .stButton > button {
+        margin: 2px 0 !important;
+        padding: 10px 16px !important;
+        border-radius: 8px !important;
     }
     
     [data-testid="stSidebar"] .nav-button,
@@ -273,7 +332,7 @@ st.markdown("""
         border: none !important;
         border-radius: 8px !important;
         padding: 10px 16px !important;
-        margin: 1px 0 !important;
+        margin: 2px 0 !important;
         text-align: left !important;
         justify-content: flex-start !important;
         color: rgba(255, 255, 255, 0.6) !important;
@@ -452,10 +511,10 @@ st.markdown("""
         background: rgba(59, 130, 246, 0.5);
     }
     
-    /* Divider */
+    /* Divider - minimal margin */
     hr {
         border-color: rgba(255, 255, 255, 0.1) !important;
-        margin: 1rem 0 !important;
+        margin: 0.5rem 0 !important;
     }
     
     /* Code blocks */
@@ -520,7 +579,7 @@ def render_sidebar(user: dict):
     
     # Logo and tagline at top with BLUE gradient styling
     st.sidebar.markdown("""
-        <div style="padding: 0 0 12px 0; font-family: 'Inter', sans-serif;">
+        <div style="padding: 0 0 8px 0; font-family: 'Inter', sans-serif;">
             <h1 style="font-size: 1.8rem; font-weight: 700; margin: 0; font-family: 'Inter', sans-serif;
                 background: linear-gradient(135deg, #ffffff 0%, #3b82f6 100%);
                 -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -545,19 +604,14 @@ def render_sidebar(user: dict):
         "Profile"
     ]
     
-    # Create a button for each navigation item with minimal spacing
+    # Create buttons directly without wrapper divs to minimize spacing
     for item in nav_items:
-        is_active = st.session_state.current_page == item
-        button_class = "nav-button-active" if is_active else "nav-button"
-        
-        st.sidebar.markdown(f'<div class="{button_class}">', unsafe_allow_html=True)
         if st.sidebar.button(item, key=f"nav_{item}", use_container_width=True):
             st.session_state.current_page = item
             st.rerun()
-        st.sidebar.markdown('</div>', unsafe_allow_html=True)
     
     # Spacer to push user info to bottom
-    st.sidebar.markdown("""<div style="height: 60px;"></div>""", unsafe_allow_html=True)
+    st.sidebar.markdown("""<div style="height: 40px;"></div>""", unsafe_allow_html=True)
     
     st.sidebar.markdown("---")
     
@@ -583,13 +637,11 @@ def render_sidebar(user: dict):
         """, unsafe_allow_html=True)
     
     # Logout button at the very bottom
-    st.sidebar.markdown('<div class="logout-btn">', unsafe_allow_html=True)
     if st.sidebar.button("Logout", use_container_width=True, key="logout_btn"):
         st.session_state.authenticated = False
         st.session_state.user = None
         st.session_state.current_page = "Dashboard"
         st.rerun()
-    st.sidebar.markdown('</div>', unsafe_allow_html=True)
     
     return st.session_state.current_page
 
