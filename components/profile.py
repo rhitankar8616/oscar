@@ -170,7 +170,7 @@ def render_account_settings(user: dict, db: DatabaseManager):
     st.markdown("---")
     
     # Delete Account section
-    st.markdown("#### Danger Zone")
+    st.markdown(" ")
     
     st.markdown("""
     <div style="
