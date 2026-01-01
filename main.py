@@ -201,8 +201,8 @@ st.markdown("""
     
     hr { border-color: rgba(255, 255, 255, 0.1) !important; margin: 0.5rem 0 !important; }
     
-    /* ========== MOBILE TOP BAR ========== */
-    .mobile-top-bar {
+    /* ========== MOBILE TOP BAR (CSS only, no JS) ========== */
+    .mobile-header {
         display: none;
         position: fixed;
         top: 0;
@@ -212,36 +212,31 @@ st.markdown("""
         background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
         border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         z-index: 99999;
-        padding: 0 12px;
+        padding: 8px 16px;
         align-items: center;
         justify-content: space-between;
     }
     
-    .mobile-logo {
+    .mobile-header-logo {
         display: flex;
         flex-direction: column;
-        justify-content: center;
     }
     
-    .mobile-logo-text {
-        font-size: 1.2rem;
-        font-weight: 700;
-        background: linear-gradient(135deg, #ffffff 0%, #3b82f6 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        margin: 0;
-        line-height: 1.2;
+    .mobile-header-logo h1 {
+        font-size: 1.2rem !important;
+        margin: 0 !important;
+        line-height: 1.2 !important;
     }
     
-    .mobile-tagline {
-        font-size: 0.5rem;
-        color: rgba(255, 255, 255, 0.4);
+    .mobile-header-logo p {
+        font-size: 0.5rem !important;
+        color: rgba(255, 255, 255, 0.4) !important;
         text-transform: uppercase;
         letter-spacing: 0.1em;
-        margin: 0;
+        margin: 0 !important;
     }
     
-    .mobile-profile-btn {
+    .mobile-header-avatar {
         width: 34px;
         height: 34px;
         border-radius: 50%;
@@ -252,74 +247,27 @@ st.markdown("""
         color: white;
         font-weight: 600;
         font-size: 13px;
-        cursor: pointer;
         border: 2px solid rgba(255,255,255,0.2);
     }
     
     /* ========== MOBILE BOTTOM NAV ========== */
-    .mobile-bottom-nav {
+    .mobile-nav-wrapper {
         display: none;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        height: 60px;
-        background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%);
-        border-top: 1px solid rgba(255, 255, 255, 0.08);
-        z-index: 99999;
     }
-    
-    .mobile-nav-container {
-        display: flex;
-        justify-content: space-around;
-        align-items: center;
-        height: 100%;
-        padding: 0 4px;
-    }
-    
-    .mobile-nav-item {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 4px 6px;
-        border-radius: 8px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-        min-width: 48px;
-    }
-    
-    .mobile-nav-item:hover { background: rgba(255, 255, 255, 0.05); }
-    .mobile-nav-item.active { background: rgba(255, 144, 0, 0.12); }
-    
-    .mobile-nav-icon {
-        width: 20px;
-        height: 20px;
-        margin-bottom: 2px;
-        color: rgba(255, 255, 255, 0.5);
-    }
-    
-    .mobile-nav-item.active .mobile-nav-icon { color: #FF9000; }
-    
-    .mobile-nav-label {
-        font-size: 0.55rem;
-        color: rgba(255, 255, 255, 0.5);
-        text-transform: uppercase;
-        letter-spacing: 0.01em;
-    }
-    
-    .mobile-nav-item.active .mobile-nav-label { color: #FF9000; font-weight: 600; }
     
     /* ========== MOBILE RESPONSIVE ========== */
     @media (max-width: 768px) {
-        .mobile-top-bar { display: flex !important; }
-        .mobile-bottom-nav { display: block !important; }
+        /* Show mobile elements */
+        .mobile-header { display: flex !important; }
+        .mobile-nav-wrapper { display: block !important; }
         
+        /* Hide desktop sidebar */
         [data-testid="stSidebar"] { display: none !important; }
         
+        /* Adjust main content */
         .block-container {
             padding-top: 70px !important;
-            padding-bottom: 75px !important;
+            padding-bottom: 90px !important;
             padding-left: 10px !important;
             padding-right: 10px !important;
             max-width: 100% !important;
@@ -383,14 +331,40 @@ st.markdown("""
         /* Compact alerts */
         .stAlert { padding: 8px 10px !important; border-radius: 8px !important; }
         
-        /* Stack columns */
-        [data-testid="column"] { width: 100% !important; flex: 1 1 100% !important; min-width: 100% !important; }
-        
         hr { margin: 0.3rem 0 !important; }
         
         /* Compact expander */
         .streamlit-expanderHeader { padding: 10px !important; border-radius: 8px !important; font-size: 0.82rem !important; }
         .streamlit-expanderContent { padding: 10px !important; }
+        
+        /* Mobile bottom nav styling */
+        .mobile-bottom-nav-container {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+            z-index: 99999 !important;
+            padding: 8px 4px !important;
+        }
+        
+        .mobile-bottom-nav-container .stButton > button {
+            background: transparent !important;
+            border: none !important;
+            padding: 4px 2px !important;
+            font-size: 0.55rem !important;
+            color: rgba(255, 255, 255, 0.5) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            min-height: 50px !important;
+        }
+        
+        .mobile-bottom-nav-container .stButton > button:hover {
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: #FF9000 !important;
+        }
     }
     
     @media (max-width: 480px) {
@@ -402,9 +376,6 @@ st.markdown("""
         [data-testid="stMetric"] [data-testid="stMetricValue"] { font-size: 1rem !important; }
         
         .stTabs [data-baseweb="tab"] { padding: 5px 8px !important; font-size: 0.65rem !important; }
-        
-        .mobile-nav-label { font-size: 0.5rem; }
-        .mobile-nav-icon { width: 18px; height: 18px; }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -420,59 +391,101 @@ def initialize_session_state():
         st.session_state.current_page = "Dashboard"
 
 
-def render_mobile_ui(user: dict):
-    """Render mobile top bar and bottom nav"""
+def render_mobile_header(user: dict):
+    """Render mobile header (CSS-only, no JavaScript)"""
     initial = user.get('full_name', 'U')[0].upper() if user else 'U'
-    current = st.session_state.current_page
     
-    # SVG icons for navigation
-    icons = {
-        "Dashboard": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>',
-        "Expenses": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
-        "Dates": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
-        "Budget Tracker": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
-        "Friends": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>',
-        "Analytics": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+    st.markdown(f"""
+    <div class="mobile-header">
+        <div class="mobile-header-logo">
+            <h1>OSCAR</h1>
+            <p>Track. Save. Review.</p>
+        </div>
+        <div class="mobile-header-avatar">{initial}</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+
+def render_mobile_bottom_nav():
+    """Render mobile bottom navigation using Streamlit native buttons"""
+    
+    # This container will be styled via CSS to appear at bottom on mobile
+    st.markdown('<div class="mobile-nav-wrapper">', unsafe_allow_html=True)
+    
+    # Create bottom navigation container
+    nav_container = st.container()
+    
+    with nav_container:
+        cols = st.columns(7)
+        
+        nav_items = [
+            ("🏠", "Dashboard"),
+            ("💰", "Expenses"),
+            ("📅", "Dates"),
+            ("💳", "Budget Tracker"),
+            ("👥", "Friends"),
+            ("📊", "Analytics"),
+            ("👤", "Profile")
+        ]
+        
+        for idx, (icon, name) in enumerate(nav_items):
+            with cols[idx]:
+                short_name = name.replace(" Tracker", "")
+                if st.button(f"{icon}\n{short_name}", key=f"mob_nav_{name}", use_container_width=True):
+                    st.session_state.current_page = name
+                    st.rerun()
+    
+    st.markdown('</div>', unsafe_allow_html=True)
+    
+    # CSS to position this at bottom on mobile
+    st.markdown("""
+    <style>
+    @media (max-width: 768px) {
+        .mobile-nav-wrapper {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            z-index: 99999;
+            padding: 4px;
+        }
+        
+        .mobile-nav-wrapper [data-testid="column"] {
+            padding: 0 2px !important;
+        }
+        
+        .mobile-nav-wrapper .stButton > button {
+            background: transparent !important;
+            border: none !important;
+            padding: 6px 2px !important;
+            font-size: 0.5rem !important;
+            color: rgba(255, 255, 255, 0.6) !important;
+            white-space: pre-line !important;
+            line-height: 1.3 !important;
+            min-height: 52px !important;
+        }
+        
+        .mobile-nav-wrapper .stButton > button:hover {
+            background: rgba(255, 144, 0, 0.15) !important;
+            color: #FF9000 !important;
+        }
     }
     
-    nav_items = ["Dashboard", "Expenses", "Dates", "Budget Tracker", "Friends", "Analytics"]
-    short_names = {"Budget Tracker": "Budget"}
-    
-    nav_html = ""
-    for name in nav_items:
-        is_active = "active" if current == name else ""
-        short = short_names.get(name, name)
-        icon = icons.get(name, "")
-        nav_html += f'''
-        <div class="mobile-nav-item {is_active}" onclick="
-            var btns = window.parent.document.querySelectorAll('button');
-            btns.forEach(function(b) {{ if(b.innerText.trim() === '{name}') b.click(); }});
-        ">
-            <div class="mobile-nav-icon">{icon}</div>
-            <span class="mobile-nav-label">{short}</span>
-        </div>
-        '''
-    
-    st.markdown(f'''
-    <div class="mobile-top-bar">
-        <div class="mobile-logo">
-            <p class="mobile-logo-text">OSCAR</p>
-            <p class="mobile-tagline">Track. Save. Review.</p>
-        </div>
-        <div class="mobile-profile-btn" onclick="
-            var btns = window.parent.document.querySelectorAll('button');
-            btns.forEach(function(b) {{ if(b.innerText.trim() === 'Profile') b.click(); }});
-        ">{initial}</div>
-    </div>
-    
-    <div class="mobile-bottom-nav">
-        <div class="mobile-nav-container">{nav_html}</div>
-    </div>
-    ''', unsafe_allow_html=True)
+    @media (min-width: 769px) {
+        .mobile-nav-wrapper {
+            display: none !important;
+        }
+    }
+    </style>
+    """, unsafe_allow_html=True)
 
 
 def render_sidebar(user: dict):
-    """Render desktop sidebar"""
+    """Render desktop sidebar navigation"""
+    
+    # Logo and tagline
     st.sidebar.markdown("""
         <div style="padding: 0 0 8px 0;">
             <h1 style="font-size: 1.8rem; font-weight: 700; margin: 0;
@@ -486,7 +499,10 @@ def render_sidebar(user: dict):
     
     st.sidebar.markdown("---")
     
-    for item in ["Dashboard", "Expenses", "Dates", "Budget Tracker", "Friends", "Analytics", "Profile"]:
+    # Navigation items
+    nav_items = ["Dashboard", "Expenses", "Dates", "Budget Tracker", "Friends", "Analytics", "Profile"]
+    
+    for item in nav_items:
         if st.sidebar.button(item, key=f"nav_{item}", use_container_width=True):
             st.session_state.current_page = item
             st.rerun()
@@ -494,6 +510,7 @@ def render_sidebar(user: dict):
     st.sidebar.markdown('<div style="height: 40px;"></div>', unsafe_allow_html=True)
     st.sidebar.markdown("---")
     
+    # User info
     if user:
         full_name = user.get('full_name', 'User')
         email = user.get('email', '')
@@ -511,6 +528,7 @@ def render_sidebar(user: dict):
             </div>
         ''', unsafe_allow_html=True)
     
+    # Logout button
     if st.sidebar.button("Logout", use_container_width=True, key="logout_btn"):
         st.session_state.authenticated = False
         st.session_state.user = None
@@ -524,9 +542,13 @@ def render_main_content(user: dict):
     """Render main content"""
     db = DatabaseManager()
     
-    render_mobile_ui(user)
+    # Render mobile header (hidden on desktop via CSS)
+    render_mobile_header(user)
+    
+    # Render desktop sidebar
     page = render_sidebar(user)
     
+    # Render page content
     if page == "Dashboard":
         render_dashboard(user, db)
     elif page == "Expenses":
@@ -541,6 +563,9 @@ def render_main_content(user: dict):
         render_analytics(user, db)
     elif page == "Profile":
         render_profile(user, db)
+    
+    # Render mobile bottom nav (hidden on desktop via CSS)
+    render_mobile_bottom_nav()
 
 
 def main():
