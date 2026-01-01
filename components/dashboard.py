@@ -1,159 +1,175 @@
 import streamlit as st
 import pandas as pd
-from datetime import datetime, timedelta
+from datetime import datetime
 from database.db_manager import DatabaseManager
 
 def render_dashboard(user: dict, db: DatabaseManager):
-    """Render dashboard page"""
-    full_name = user.get('full_name', 'User')
-    st.markdown(f"### Welcome, {full_name}!")
+    """Render dashboard page with overview"""
     
-    # Get current month stats
+    # Welcome message
+    st.markdown(f"## Welcome back, {user.get('full_name', 'User')}!")
+    st.markdown(f"*Here's your financial overview for {datetime.now().strftime('%B %Y')}*")
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    # Get user data
+    monthly_budget = user.get('monthly_budget', 0) or 0
     current_month = datetime.now().strftime("%Y-%m")
-    stats = db.get_expense_stats(user['id'], month=current_month)
+    expenses = db.get_user_expenses(user['id'], month=current_month)
+    
+    # Calculate stats
+    total_spent = sum(exp['amount'] for exp in expenses) if expenses else 0
+    remaining = monthly_budget - total_spent
+    num_transactions = len(expenses)
+    
+    # Status determination
+    if monthly_budget > 0:
+        percentage_used = (total_spent / monthly_budget) * 100
+        if percentage_used < 50:
+            status = "Excellent"
+            status_color = "#4CAF50"
+        elif percentage_used < 80:
+            status = "Good"
+            status_color = "#FF9800"
+        else:
+            status = "Warning"
+            status_color = "#F44336"
+    else:
+        status = "Not Set"
+        status_color = "#757575"
+        percentage_used = 0
     
     # Metrics row
     col1, col2, col3, col4 = st.columns(4)
     
     with col1:
-        st.metric("This Month", f"${stats.get('total_spent', 0):,.2f}")
+        st.markdown(f"""
+        <div style="padding: 20px; background: rgba(30, 45, 65, 0.5); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <span style="color: rgba(255,255,255,0.6); font-size: 0.75rem; text-transform: uppercase;">Monthly Budget</span>
+            </div>
+            <h2 style="color: white; margin: 10px 0;">${monthly_budget:,.2f}</h2>
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin: 0;">Set in Profile</p>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col2:
-        st.metric("Transactions", stats.get('total_count', 0))
+        st.markdown(f"""
+        <div style="padding: 20px; background: rgba(30, 45, 65, 0.5); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <span style="color: rgba(255,255,255,0.6); font-size: 0.75rem; text-transform: uppercase;">Spent This Month</span>
+            </div>
+            <h2 style="color: white; margin: 10px 0;">${total_spent:,.2f}</h2>
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin: 0;">{num_transactions} transactions</p>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col3:
-        avg = stats.get('avg_expense', 0) or 0
-        st.metric("Avg Expense", f"${avg:,.2f}")
+        remaining_color = "#4CAF50" if remaining >= 0 else "#F44336"
+        st.markdown(f"""
+        <div style="padding: 20px; background: rgba(30, 45, 65, 0.5); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <span style="color: rgba(255,255,255,0.6); font-size: 0.75rem; text-transform: uppercase;">Remaining Budget</span>
+            </div>
+            <h2 style="color: {remaining_color}; margin: 10px 0;">${remaining:,.2f}</h2>
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.85rem; margin: 0;">
+                {percentage_used:.1f}% of budget used
+            </p>
+        </div>
+        """, unsafe_allow_html=True)
     
     with col4:
-        budget = user.get('monthly_budget', 0) or 0
-        spent = stats.get('total_spent', 0) or 0
-        remaining = max(0, budget - spent)
-        st.metric("Budget Left", f"${remaining:,.2f}")
+        st.markdown(f"""
+        <div style="padding: 20px; background: rgba(30, 45, 65, 0.5); border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.05);">
+            <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 8px;">
+                <span style="color: rgba(255,255,255,0.6); font-size: 0.75rem; text-transform: uppercase;">Status</span>
+            </div>
+            <h2 style="color: {status_color}; margin: 10px 0;">{status}</h2>
+            <div style="background: rgba(255,255,255,0.1); height: 6px; border-radius: 3px; overflow: hidden;">
+                <div style="background: {status_color}; height: 100%; width: {min(percentage_used, 100)}%; transition: width 0.3s;"></div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
     
-    st.markdown("---")
+    st.markdown("<br>", unsafe_allow_html=True)
     
-    # Two columns for recent expenses and reminders
+    # Two column layout for Recent Expenses and Upcoming Reminders
     col1, col2 = st.columns(2)
     
     with col1:
-        render_recent_expenses(user, db)
+        st.markdown("### Recent Expenses")
+        if expenses:
+            # Show last 5 expenses
+            for exp in expenses[:5]:
+                st.markdown(f"""
+                <div style="padding: 16px; margin: 8px 0; background: rgba(30, 45, 65, 0.4); border-radius: 12px; border-left: 3px solid #FF9000;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="color: white;">{exp['title']}</strong><br>
+                            <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">{exp['category']} • {exp['date']}</span>
+                        </div>
+                        <strong style="color: #FF9000; font-size: 1.2rem;">${exp['amount']:,.2f}</strong>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            if st.button("View All Expenses →", key="view_all_exp", use_container_width=True):
+                st.session_state.current_page = "Expenses"
+                st.rerun()
+        else:
+            st.info("No expenses recorded yet")
+            if st.button("Add Your First Expense", key="add_first_exp", use_container_width=True):
+                st.session_state.current_page = "Expenses"
+                st.rerun()
     
     with col2:
-        render_upcoming_reminders(user, db)
-
-def render_recent_expenses(user: dict, db: DatabaseManager):
-    """Render recent expenses section"""
-    st.markdown("#### Recent Expenses")
-    
-    expenses = db.get_user_expenses(user['id'], limit=5)
-    
-    if not expenses:
-        st.info("No expenses yet")
-        if st.button("Add Expense", key="add_expense_dash"):
-            st.session_state.current_page = "Expenses"
-            st.rerun()
-        return
-    
-    for expense in expenses[:5]:
-        try:
-            exp_date = datetime.strptime(expense['date'], "%Y-%m-%d").strftime("%b %d")
-        except:
-            exp_date = expense['date']
+        st.markdown("### Upcoming Reminders")
+        reminders = db.get_user_reminders(user['id'])
         
-        st.markdown(f"""
-        <div style="
-            background: rgba(30, 45, 65, 0.4);
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-bottom: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        ">
-            <div>
-                <p style="color: #ffffff; font-size: 0.85rem; font-weight: 500; margin: 0;">{expense['title']}</p>
-                <p style="color: rgba(255,255,255,0.5); font-size: 0.7rem; margin: 0;">{expense['category']}</p>
-            </div>
-            <div style="text-align: right;">
-                <p style="color: #FF9000; font-size: 0.9rem; font-weight: 600; margin: 0;">${expense['amount']:,.2f}</p>
-                <p style="color: rgba(255,255,255,0.4); font-size: 0.65rem; margin: 0;">{exp_date}</p>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    if st.button("View All Expenses", key="view_all_expenses", use_container_width=True):
-        st.session_state.current_page = "Expenses"
-        st.rerun()
-
-def render_upcoming_reminders(user: dict, db: DatabaseManager):
-    """Render upcoming reminders section"""
-    st.markdown("#### Upcoming Reminders")
-    
-    reminders = db.get_user_reminders(user['id'])
-    
-    if not reminders:
-        st.info("No upcoming reminders")
-        if st.button("Add Reminder", key="add_reminder_dash"):
-            st.session_state.current_page = "Dates"
-            st.rerun()
-        return
-    
-    # Sort by due date and take first 5
-    df = pd.DataFrame(reminders)
-    df['due_date'] = pd.to_datetime(df['due_date'])
-    df = df.sort_values('due_date').head(5)
-    
-    today = datetime.now()
-    
-    for _, reminder in df.iterrows():
-        days_until = (reminder['due_date'] - today).days
-        
-        if days_until <= 3:
-            color = "#F44336"
-        elif days_until <= 7:
-            color = "#FF9800"
+        if reminders:
+            # Show next 5 reminders
+            for reminder in reminders[:5]:
+                # Handle different date field names
+                date_val = reminder.get('due_date') or reminder.get('date')
+                if isinstance(date_val, str):
+                    try:
+                        due_date = datetime.strptime(date_val, "%Y-%m-%d")
+                    except:
+                        due_date = datetime.now()
+                else:
+                    due_date = date_val if date_val else datetime.now()
+                
+                days_until = (due_date - datetime.now()).days
+                
+                # Color based on urgency
+                if days_until <= 3:
+                    color = "#F44336"
+                elif days_until <= 7:
+                    color = "#FF9800"
+                else:
+                    color = "#4CAF50"
+                
+                reminder_type = reminder.get('reminder_type') or reminder.get('type') or 'Reminder'
+                date_str = due_date.strftime("%Y-%m-%d") if hasattr(due_date, 'strftime') else str(due_date)
+                
+                st.markdown(f"""
+                <div style="padding: 16px; margin: 8px 0; background: rgba(30, 45, 65, 0.4); border-radius: 12px; border-left: 3px solid {color};">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <strong style="color: white;">{reminder['title']}</strong><br>
+                            <span style="color: rgba(255,255,255,0.5); font-size: 0.85rem;">{reminder_type} • {date_str}</span>
+                        </div>
+                        <span style="color: {color}; font-size: 0.9rem;">
+                            {'Today' if days_until == 0 else 'Tomorrow' if days_until == 1 else f'{days_until}d' if days_until > 0 else 'Overdue'}
+                        </span>
+                    </div>
+                </div>
+                """, unsafe_allow_html=True)
+            
+            if st.button("View All Reminders →", key="view_all_rem", use_container_width=True):
+                st.session_state.current_page = "Dates"
+                st.rerun()
         else:
-            color = "#4CAF50"
-        
-        if days_until == 0:
-            days_text = "Today"
-        elif days_until == 1:
-            days_text = "Tomorrow"
-        elif days_until < 0:
-            days_text = "Overdue"
-            color = "#F44336"
-        else:
-            days_text = f"{days_until}d"
-        
-        # Handle both field names
-        due_date_val = reminder.get('due_date') or reminder.get('date')
-        if hasattr(due_date_val, 'strftime'):
-            due_str = due_date_val.strftime('%b %d')
-        else:
-            due_str = str(due_date_val)[:10]
-        
-        st.markdown(f"""
-        <div style="
-            background: rgba(30, 45, 65, 0.4);
-            border-left: 3px solid {color};
-            border-radius: 8px;
-            padding: 10px 12px;
-            margin-bottom: 6px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        ">
-            <div>
-                <p style="color: #ffffff; font-size: 0.85rem; font-weight: 500; margin: 0;">{reminder['title']}</p>
-                <p style="color: rgba(255,255,255,0.5); font-size: 0.7rem; margin: 0;">{due_str}</p>
-            </div>
-            <div style="text-align: right;">
-                <p style="color: {color}; font-size: 0.8rem; font-weight: 600; margin: 0;">{days_text}</p>
-            </div>
-        </div>
-        """, unsafe_allow_html=True)
-    
-    if st.button("View All Reminders", key="view_all_reminders", use_container_width=True):
-        st.session_state.current_page = "Dates"
-        st.rerun()
+            st.info("No upcoming reminders")
+            if st.button("Add Reminder", key="add_first_rem", use_container_width=True):
+                st.session_state.current_page = "Dates"
+                st.rerun()
