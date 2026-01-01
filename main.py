@@ -213,18 +213,56 @@ st.markdown("""
         [data-testid="stForm"] { padding: 10px !important; border-radius: 8px !important; }
         [role="option"] { padding: 6px 8px !important; font-size: 0.8rem !important; }
         .stAlert { padding: 6px 8px !important; border-radius: 6px !important; }
+        
+        /* FORCE HORIZONTAL NAV BAR */
+        .bottom-nav-container [data-testid="stHorizontalBlock"] {
+            display: flex !important;
+            flex-direction: row !important;
+            flex-wrap: nowrap !important;
+            gap: 2px !important;
+            width: 100% !important;
+        }
+        
+        .bottom-nav-container [data-testid="column"] {
+            flex: 1 !important;
+            width: auto !important;
+            min-width: 0 !important;
+            padding: 0 1px !important;
+        }
+        
+        .bottom-nav-container .stButton {
+            width: 100% !important;
+        }
+        
+        .bottom-nav-container .stButton > button {
+            width: 100% !important;
+            background: transparent !important;
+            border: none !important;
+            color: rgba(255, 255, 255, 0.6) !important;
+            padding: 6px 2px !important;
+            font-size: 0.5rem !important;
+            min-height: 52px !important;
+            line-height: 1.3 !important;
+            white-space: pre-line !important;
+            border-radius: 8px !important;
+        }
+        
+        .bottom-nav-container .stButton > button:hover {
+            background: rgba(255, 144, 0, 0.15) !important;
+            color: #FF9000 !important;
+        }
     }
     
-    /* Hide mobile header on desktop */
+    /* Hide mobile elements on desktop */
     @media (min-width: 769px) {
         .mobile-top-bar { display: none !important; }
-        .mobile-nav-section { display: none !important; }
+        .bottom-nav-container { display: none !important; }
     }
     
     /* Show mobile elements on mobile */
     @media (max-width: 768px) {
         .mobile-top-bar { display: flex !important; }
-        .mobile-nav-section { display: block !important; }
+        .bottom-nav-container { display: block !important; }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -275,68 +313,25 @@ def render_mobile_top_bar(user: dict):
 
 
 def render_mobile_bottom_nav():
-    """Render mobile bottom navigation using styled Streamlit buttons"""
+    """Render mobile bottom navigation - HORIZONTAL BAR"""
     
-    # Mark this section as mobile nav
-    st.markdown('<div class="mobile-nav-section">', unsafe_allow_html=True)
+    current_page = st.session_state.get('current_page', 'Dashboard')
     
-    # Spacer and background container
+    # Add spacing before nav
+    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
+    
+    # Start nav container with class for CSS targeting
     st.markdown("""
-    <div style="
-        margin-top: 30px;
-        padding: 15px 5px 50px 5px;
+    <div class="bottom-nav-container" style="
         background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%);
         border-top: 1px solid rgba(255, 255, 255, 0.1);
+        padding: 10px 5px 45px 5px;
+        margin: 0 -8px;
         border-radius: 16px 16px 0 0;
-        margin-left: -8px;
-        margin-right: -8px;
     ">
-    </div>
     """, unsafe_allow_html=True)
     
-    # Custom CSS for nav buttons
-    st.markdown("""
-    <style>
-    @media (max-width: 768px) {
-        .mobile-nav-section [data-testid="stHorizontalBlock"] {
-            background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%);
-            padding: 10px 5px 40px 5px;
-            margin: -20px -8px 0 -8px;
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-        }
-        
-        .mobile-nav-section [data-testid="column"] {
-            padding: 0 2px !important;
-        }
-        
-        .mobile-nav-section .stButton > button {
-            background: transparent !important;
-            border: none !important;
-            color: rgba(255, 255, 255, 0.6) !important;
-            padding: 8px 2px !important;
-            font-size: 0.55rem !important;
-            min-height: 58px !important;
-            line-height: 1.4 !important;
-            white-space: pre-line !important;
-            border-radius: 10px !important;
-            transition: all 0.2s ease !important;
-        }
-        
-        .mobile-nav-section .stButton > button:hover {
-            background: rgba(255, 144, 0, 0.15) !important;
-            color: #FF9000 !important;
-        }
-        
-        .mobile-nav-section .stButton > button:focus {
-            box-shadow: none !important;
-        }
-    }
-    </style>
-    """, unsafe_allow_html=True)
-    
-    # Navigation buttons
-    cols = st.columns(7)
-    
+    # Navigation items
     nav_items = [
         ("Dashboard", "🏠", "Home"),
         ("Expenses", "💰", "Expense"),
@@ -347,29 +342,33 @@ def render_mobile_bottom_nav():
         ("Profile", "👤", "Profile"),
     ]
     
-    current_page = st.session_state.get('current_page', 'Dashboard')
+    # Create columns for horizontal layout
+    cols = st.columns(7)
     
     for idx, (page, icon, label) in enumerate(nav_items):
         with cols[idx]:
             is_active = (current_page == page)
             
-            # Highlight active button
+            # Style active button differently
             if is_active:
                 st.markdown(f"""
                 <style>
-                .mobile-nav-section [data-testid="column"]:nth-child({idx + 1}) .stButton > button {{
-                    background: rgba(255, 144, 0, 0.2) !important;
-                    color: #FF9000 !important;
+                @media (max-width: 768px) {{
+                    .bottom-nav-container [data-testid="column"]:nth-child({idx + 1}) .stButton > button {{
+                        background: rgba(255, 144, 0, 0.2) !important;
+                        color: #FF9000 !important;
+                    }}
                 }}
                 </style>
                 """, unsafe_allow_html=True)
             
-            btn_text = f"{icon}\n{label}"
-            if st.button(btn_text, key=f"mnav_{page}", use_container_width=True):
+            # Button with icon on top, label below
+            if st.button(f"{icon}\n{label}", key=f"bnav_{page}", use_container_width=True):
                 st.session_state.current_page = page
                 st.rerun()
     
-    st.markdown('</div>', unsafe_allow_html=True)
+    # Close nav container
+    st.markdown("</div>", unsafe_allow_html=True)
 
 
 def render_sidebar(user: dict):
