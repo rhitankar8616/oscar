@@ -4,167 +4,162 @@ from datetime import datetime
 from database.db_manager import DatabaseManager
 
 def render_budget(user: dict, db: DatabaseManager):
-    """Render budget tracking page"""
+    """Render budget tracker page"""
     st.markdown("### Budget Tracker")
     
-    # Get user's budget settings
-    budget_settings = db.get_budget_settings(user['id'])
-    
-    # Create tabs
-    tab1, tab2 = st.tabs(["Set Budget", "Budget Overview"])
+    tab1, tab2 = st.tabs(["Overview", "Set Budgets"])
     
     with tab1:
-        st.markdown("#### Set Your Monthly Budget")
+        render_budget_overview(user, db)
+    
+    with tab2:
+        render_set_budgets(user, db)
+
+def render_budget_overview(user: dict, db: DatabaseManager):
+    """Render budget overview"""
+    monthly_budget = user.get('monthly_budget', 0) or 0
+    current_month = datetime.now().strftime("%Y-%m")
+    expenses = db.get_user_expenses(user['id'], month=current_month)
+    
+    total_spent = sum(exp['amount'] for exp in expenses) if expenses else 0
+    remaining = monthly_budget - total_spent
+    
+    if monthly_budget > 0:
+        percentage_used = (total_spent / monthly_budget) * 100
+    else:
+        percentage_used = 0
+    
+    # Overall budget summary - side by side
+    col1, col2 = st.columns(2)
+    
+    with col1:
+        st.markdown(f"""
+        <div style="background: rgba(30, 45, 65, 0.5); border-radius: 10px; padding: 12px; text-align: center;">
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.65rem; text-transform: uppercase; margin: 0;">Monthly Budget</p>
+            <p style="color: white; font-size: 1.3rem; font-weight: 700; margin: 4px 0;">${monthly_budget:,.2f}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    with col2:
+        remaining_color = "#4CAF50" if remaining >= 0 else "#F44336"
+        st.markdown(f"""
+        <div style="background: rgba(30, 45, 65, 0.5); border-radius: 10px; padding: 12px; text-align: center;">
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.65rem; text-transform: uppercase; margin: 0;">Remaining</p>
+            <p style="color: {remaining_color}; font-size: 1.3rem; font-weight: 700; margin: 4px 0;">${remaining:,.2f}</p>
+        </div>
+        """, unsafe_allow_html=True)
+    
+    # Progress bar
+    st.markdown(f"""
+    <div style="margin: 12px 0;">
+        <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+            <span style="color: rgba(255,255,255,0.5); font-size: 0.7rem;">Spent: ${total_spent:,.2f}</span>
+            <span style="color: rgba(255,255,255,0.5); font-size: 0.7rem;">{percentage_used:.0f}%</span>
+        </div>
+        <div style="background: rgba(255,255,255,0.1); height: 8px; border-radius: 4px;">
+            <div style="background: {'#4CAF50' if percentage_used < 80 else '#F44336'}; height: 100%; width: {min(percentage_used, 100)}%; border-radius: 4px;"></div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("---")
+    
+    # Category breakdown
+    st.markdown("#### Spending by Category")
+    
+    if expenses:
+        df = pd.DataFrame(expenses)
+        category_totals = df.groupby('category')['amount'].sum().sort_values(ascending=False)
         
-        # Wrap everything in a form
-        with st.form("budget_form", clear_on_submit=False):
+        # Display in 2x2 grid
+        categories = list(category_totals.items())
+        
+        for i in range(0, len(categories), 2):
             col1, col2 = st.columns(2)
             
             with col1:
-                total_budget = st.number_input(
-                    "Total Monthly Budget",
-                    min_value=0.0,
-                    value=float(budget_settings.get('total_budget', 0.0)) if budget_settings else 0.0,
-                    step=100.0,
-                    help="Your total monthly budget"
-                )
+                if i < len(categories):
+                    cat, amount = categories[i]
+                    pct = (amount / total_spent * 100) if total_spent > 0 else 0
+                    st.markdown(f"""
+                    <div style="background: rgba(30, 45, 65, 0.4); border-radius: 8px; padding: 10px; margin-bottom: 6px;">
+                        <p style="color: white; font-size: 0.8rem; font-weight: 500; margin: 0;">{cat}</p>
+                        <p style="color: #FF9000; font-size: 0.95rem; font-weight: 600; margin: 2px 0;">${amount:,.2f}</p>
+                        <p style="color: rgba(255,255,255,0.4); font-size: 0.6rem; margin: 0;">{pct:.0f}% of total</p>
+                    </div>
+                    """, unsafe_allow_html=True)
             
             with col2:
-                currency = st.selectbox(
-                    "Currency",
-                    ["USD", "EUR", "GBP", "INR", "JPY"],
-                    index=["USD", "EUR", "GBP", "INR", "JPY"].index(
-                        budget_settings.get('currency', 'USD')
-                    ) if budget_settings else 0
-                )
-            
-            st.markdown("#### Category Budgets")
-            
-            # Default categories
-            default_categories = [
-                "Food & Dining", "Transportation", "Shopping", 
-                "Entertainment", "Bills & Utilities", "Health", "Other"
-            ]
-            
-            category_budgets = {}
-            
-            # Create two columns for category inputs
-            cols = st.columns(2)
-            for idx, category in enumerate(default_categories):
-                col = cols[idx % 2]
-                with col:
-                    current_value = 0.0
-                    if budget_settings and 'category_budgets' in budget_settings:
-                        current_value = float(budget_settings['category_budgets'].get(category, 0.0))
-                    
-                    category_budgets[category] = st.number_input(
-                        category,
-                        min_value=0.0,
-                        value=current_value,
-                        step=50.0,
-                        key=f"budget_{category}"
-                    )
-            
-            # Submit button inside the form
-            submitted = st.form_submit_button("Save Changes", use_container_width=True, type="primary")
-            
-            if submitted:
-                # Save budget settings
-                success = db.save_budget_settings(
-                    user['id'],
-                    total_budget,
-                    currency,
-                    category_budgets
-                )
-                
-                if success:
-                    st.success("Budget settings saved successfully!")
-                    st.rerun()
-                else:
-                    st.error("Failed to save budget settings")
+                if i + 1 < len(categories):
+                    cat, amount = categories[i + 1]
+                    pct = (amount / total_spent * 100) if total_spent > 0 else 0
+                    st.markdown(f"""
+                    <div style="background: rgba(30, 45, 65, 0.4); border-radius: 8px; padding: 10px; margin-bottom: 6px;">
+                        <p style="color: white; font-size: 0.8rem; font-weight: 500; margin: 0;">{cat}</p>
+                        <p style="color: #FF9000; font-size: 0.95rem; font-weight: 600; margin: 2px 0;">${amount:,.2f}</p>
+                        <p style="color: rgba(255,255,255,0.4); font-size: 0.6rem; margin: 0;">{pct:.0f}% of total</p>
+                    </div>
+                    """, unsafe_allow_html=True)
+    else:
+        st.info("No expenses this month")
+
+def render_set_budgets(user: dict, db: DatabaseManager):
+    """Render set budgets form with 2x2 grid layout"""
+    st.markdown("#### Set Category Budgets")
     
-    with tab2:
-        if not budget_settings:
-            st.info("Please set your budget in the 'Set Budget' tab first.")
-            return
+    categories = ["Food & Dining", "Transportation", "Shopping", "Entertainment", 
+                  "Bills & Utilities", "Healthcare", "Education", "Travel", "Other"]
+    
+    # Get existing budgets
+    existing_budgets = db.get_category_budgets(user['id']) if hasattr(db, 'get_category_budgets') else {}
+    
+    with st.form("category_budgets"):
+        st.markdown("Set monthly limits for each category:")
         
-        st.markdown("#### Your Budget Overview")
+        budget_values = {}
         
-        # Get current month expenses
-        current_month = datetime.now().strftime("%Y-%m")
-        expenses = db.get_expenses(user['id'])
-        
-        if expenses:
-            df = pd.DataFrame(expenses)
-            current_month_expenses = df[df['date'].str.startswith(current_month)]
-            
-            # Total spending
-            total_spent = current_month_expenses['amount'].sum()
-            total_budget = budget_settings['total_budget']
-            remaining = total_budget - total_spent
-            
-            # Overall progress
-            col1, col2, col3 = st.columns(3)
+        # Display categories in 2x2 grid
+        for i in range(0, len(categories), 2):
+            col1, col2 = st.columns(2)
             
             with col1:
-                st.metric("Total Budget", f"{budget_settings['currency']} {total_budget:,.2f}")
+                if i < len(categories):
+                    cat = categories[i]
+                    default_val = existing_budgets.get(cat, 0.0)
+                    budget_values[cat] = st.number_input(
+                        cat,
+                        min_value=0.0,
+                        value=float(default_val),
+                        step=50.0,
+                        key=f"budget_{cat}"
+                    )
             
             with col2:
-                st.metric("Total Spent", f"{budget_settings['currency']} {total_spent:,.2f}")
-            
-            with col3:
-                delta_color = "normal" if remaining >= 0 else "inverse"
-                st.metric(
-                    "Remaining", 
-                    f"{budget_settings['currency']} {remaining:,.2f}",
-                    delta=f"{(remaining/total_budget*100):.1f}%" if total_budget > 0 else "0%"
-                )
-            
-            # Progress bar
-            progress = min(total_spent / total_budget, 1.0) if total_budget > 0 else 0
-            st.progress(progress)
-            
-            if progress >= 1.0:
-                st.error("You have exceeded your budget!")
-            elif progress >= 0.8:
-                st.warning("You're approaching your budget limit!")
-            
-            st.markdown("---")
-            st.markdown("#### Category Breakdown")
-            
-            # Category-wise breakdown
-            category_budgets = budget_settings.get('category_budgets', {})
-            
-            for category, budget_amount in category_budgets.items():
-                if budget_amount > 0:
-                    category_expenses = current_month_expenses[
-                        current_month_expenses['category'] == category
-                    ]['amount'].sum()
-                    
-                    remaining_cat = budget_amount - category_expenses
-                    progress_cat = min(category_expenses / budget_amount, 1.0) if budget_amount > 0 else 0
-                    
-                    st.markdown(f"**{category}**")
-                    col1, col2 = st.columns([3, 1])
-                    
-                    with col1:
-                        st.progress(progress_cat)
-                    
-                    with col2:
-                        percentage = (category_expenses / budget_amount * 100) if budget_amount > 0 else 0
-                        st.markdown(f"*{percentage:.1f}%*")
-                    
-                    col1, col2, col3 = st.columns(3)
-                    with col1:
-                        st.caption(f"Budget: {budget_settings['currency']} {budget_amount:,.2f}")
-                    with col2:
-                        st.caption(f"Spent: {budget_settings['currency']} {category_expenses:,.2f}")
-                    with col3:
-                        if remaining_cat < 0:
-                            st.caption(f"Over by: {budget_settings['currency']} {abs(remaining_cat):,.2f}")
-                        else:
-                            st.caption(f"Left: {budget_settings['currency']} {remaining_cat:,.2f}")
-                    
-                    st.markdown("")
-        else:
-            st.info("No expenses recorded yet for this month.")
+                if i + 1 < len(categories):
+                    cat = categories[i + 1]
+                    default_val = existing_budgets.get(cat, 0.0)
+                    budget_values[cat] = st.number_input(
+                        cat,
+                        min_value=0.0,
+                        value=float(default_val),
+                        step=50.0,
+                        key=f"budget_{cat}"
+                    )
+        
+        if st.form_submit_button("Save Budgets", type="primary", use_container_width=True):
+            if hasattr(db, 'save_category_budgets'):
+                db.save_category_budgets(user['id'], budget_values)
+                st.success("Budgets saved!")
+                st.rerun()
+            else:
+                st.info("Category budgets feature will be available soon!")
+    
+    st.markdown("---")
+    
+    # Quick tip
+    st.markdown("""
+    <div style="background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); border-radius: 8px; padding: 12px;">
+        <p style="color: #3b82f6; font-size: 0.8rem; font-weight: 500; margin: 0 0 4px 0;">💡 Tip</p>
+        <p style="color: rgba(255,255,255,0.7); font-size: 0.75rem; margin: 0;">Set your overall monthly budget in your Profile settings. Category budgets help you track spending in specific areas.</p>
+    </div>
+    """, unsafe_allow_html=True)

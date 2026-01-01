@@ -22,6 +22,7 @@ def render_add_expense(user: dict, db: DatabaseManager):
     with st.form("expense_form", clear_on_submit=True):
         title = st.text_input("Title*", placeholder="e.g., Grocery shopping")
         
+        # Two columns for compact layout
         col1, col2 = st.columns(2)
         with col1:
             amount = st.number_input("Amount*", min_value=0.01, step=0.01)
@@ -38,7 +39,7 @@ def render_add_expense(user: dict, db: DatabaseManager):
                 ["Cash", "Credit Card", "Debit Card", "UPI", "Net Banking", "Other"]
             )
         
-        notes = st.text_area("Notes (optional)", placeholder="Add any notes...")
+        notes = st.text_area("Notes (optional)", placeholder="Add any notes...", height=60)
         
         submit = st.form_submit_button("Add Expense", use_container_width=True, type="primary")
         
@@ -59,19 +60,20 @@ def render_add_expense(user: dict, db: DatabaseManager):
                 )
                 
                 if success:
-                    st.success("Expense added successfully!")
+                    st.success("Expense added!")
                     st.rerun()
                 else:
                     st.error("Failed to add expense")
 
 def render_view_expenses(user: dict, db: DatabaseManager):
-    """Render view expenses section"""
+    """Render view expenses section with compact list"""
     st.markdown("#### Your Expenses")
     
+    # Filters side by side
     col1, col2 = st.columns(2)
     with col1:
         category_filter = st.selectbox(
-            "Filter by Category",
+            "Category",
             ["All Categories", "Food & Dining", "Transportation", "Shopping", 
              "Entertainment", "Bills & Utilities", "Healthcare", "Education", "Travel", "Other"],
             key="expense_cat_filter"
@@ -83,7 +85,7 @@ def render_view_expenses(user: dict, db: DatabaseManager):
         for i in range(12):
             month_date = datetime(current_year, 12 - i, 1)
             months.append(month_date.strftime("%Y-%m"))
-        month_filter = st.selectbox("Filter by Month", months, key="expense_month_filter")
+        month_filter = st.selectbox("Month", months, key="expense_month_filter")
     
     # Get expenses
     category = category_filter if category_filter != "All Categories" else None
@@ -94,84 +96,45 @@ def render_view_expenses(user: dict, db: DatabaseManager):
         st.info("No expenses found")
         return
     
-    # Calculate total
+    # Total summary - compact
     total = sum(e['amount'] for e in expenses)
     st.markdown(f"""
-    <div style="background: rgba(30, 45, 65, 0.5); border-radius: 10px; padding: 12px 16px; margin-bottom: 16px;">
-        <span style="color: rgba(255,255,255,0.6); font-size: 0.8rem;">Total:</span>
-        <span style="color: #FF9000; font-size: 1.2rem; font-weight: 700; margin-left: 8px;">${total:,.2f}</span>
-        <span style="color: rgba(255,255,255,0.5); font-size: 0.75rem; margin-left: 8px;">({len(expenses)} expenses)</span>
+    <div style="background: rgba(30, 45, 65, 0.5); border-radius: 8px; padding: 8px 12px; margin-bottom: 10px;">
+        <span style="color: rgba(255,255,255,0.6); font-size: 0.7rem;">Total: </span>
+        <span style="color: #FF9000; font-size: 1rem; font-weight: 700;">${total:,.2f}</span>
+        <span style="color: rgba(255,255,255,0.4); font-size: 0.65rem; margin-left: 8px;">({len(expenses)} items)</span>
     </div>
     """, unsafe_allow_html=True)
     
-    # Display expenses as compact cards
+    # Compact expense list with delete button on right
     for expense in expenses:
         expense_id = expense['id']
         
-        # Format date
         try:
-            exp_date = datetime.strptime(expense['date'], "%Y-%m-%d").strftime("%b %d, %Y")
+            exp_date = datetime.strptime(expense['date'], "%Y-%m-%d").strftime("%b %d")
         except:
-            exp_date = expense['date']
+            exp_date = expense['date'][:10] if expense['date'] else ""
         
-        # Card HTML
-        st.markdown(f"""
-        <div style="
-            background: rgba(30, 45, 65, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 8px;
-        ">
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 8px;">
-                <div style="flex: 1; min-width: 150px;">
-                    <p style="color: #ffffff; font-size: 0.95rem; font-weight: 600; margin: 0 0 4px 0;">{expense['title']}</p>
-                    <p style="color: rgba(255,255,255,0.5); font-size: 0.75rem; margin: 0;">
-                        {expense['category']} | {expense['payment_method']}
-                    </p>
-                </div>
-                <div style="text-align: right;">
-                    <p style="color: #FF9000; font-size: 1rem; font-weight: 700; margin: 0;">${expense['amount']:,.2f}</p>
-                    <p style="color: rgba(255,255,255,0.5); font-size: 0.7rem; margin: 0;">{exp_date}</p>
+        # Create columns: main content (large) + delete button (small)
+        col_main, col_del = st.columns([6, 1])
+        
+        with col_main:
+            st.markdown(f"""
+            <div style="background: rgba(30, 45, 65, 0.4); border-radius: 8px; padding: 8px 10px; border-left: 2px solid #FF9000;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="flex: 1; min-width: 0;">
+                        <p style="color: #ffffff; font-size: 0.82rem; font-weight: 500; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{expense['title']}</p>
+                        <p style="color: rgba(255,255,255,0.4); font-size: 0.65rem; margin: 0;">{expense['category']} • {expense['payment_method']} • {exp_date}</p>
+                    </div>
+                    <p style="color: #FF9000; font-size: 0.9rem; font-weight: 600; margin: 0 0 0 8px;">${expense['amount']:,.2f}</p>
                 </div>
             </div>
-        </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
         
-        # Action row with compact delete button
-        col1, col2, col3 = st.columns([3, 3, 1])
-        
-        with col1:
-            if expense.get('notes'):
-                st.markdown(f"""
-                <p style="color: rgba(255,255,255,0.5); font-size: 0.7rem; margin: 0; padding-left: 4px;">
-                    {expense['notes'][:50]}{'...' if len(expense.get('notes', '')) > 50 else ''}
-                </p>
-                """, unsafe_allow_html=True)
-        
-        with col3:
-            # Compact delete button with icon styling via CSS
-            if st.button("✕", key=f"del_exp_{expense_id}", help="Delete"):
+        with col_del:
+            if st.button("🗑", key=f"del_{expense_id}", help="Delete"):
                 db.delete_expense(user['id'], expense_id)
-                st.success("Deleted!")
                 st.rerun()
         
-        st.markdown('<div style="height: 4px;"></div>', unsafe_allow_html=True)
-    
-    # Add custom CSS for delete button styling
-    st.markdown("""
-    <style>
-    /* Style delete buttons on mobile */
-    @media (max-width: 768px) {
-        button[kind="secondary"]:has(div:contains("✕")),
-        button:has(div:contains("✕")) {
-            background: rgba(255, 80, 80, 0.15) !important;
-            color: #ff6b6b !important;
-            border: 1px solid rgba(255, 80, 80, 0.3) !important;
-            padding: 4px 8px !important;
-            min-width: 32px !important;
-            font-size: 0.9rem !important;
-        }
-    }
-    </style>
-    """, unsafe_allow_html=True)
+        # Minimal spacing between items
+        st.markdown('<div style="height: 2px;"></div>', unsafe_allow_html=True)
