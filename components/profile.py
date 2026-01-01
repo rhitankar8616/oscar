@@ -170,22 +170,34 @@ def render_account_settings(user: dict, db: DatabaseManager):
     st.markdown("---")
     
     # Delete Account section
-    st.markdown("#### Delete Account")
+    st.markdown("#### Danger Zone")
     
-    with st.expander("Permanently Delete Your Account"):
-        st.markdown("**Warning:** This action cannot be undone. All your data will be permanently deleted.")
-        st.markdown("")
-        
-        confirm_text = st.text_input(
-            "Type 'DELETE' to confirm",
-            key="delete_confirm"
-        )
-        
-        st.markdown("")
-        
-        if st.button("Delete My Account", type="primary", use_container_width=True):
-            if confirm_text == "DELETE":
-                # Here you would implement account deletion
-                st.error("Account deletion is currently disabled. Please contact support.")
-            else:
-                st.error("Please type 'DELETE' to confirm")
+    st.markdown("""
+    <div style="
+        background: rgba(255, 100, 100, 0.1);
+        border: 1px solid rgba(255, 100, 100, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 16px;
+    ">
+        <h5 style="color: #ff6b6b; margin: 0 0 12px 0;">Delete Account</h5>
+        <p style="color: rgba(255, 255, 255, 0.7); font-size: 0.9rem; margin: 0;">
+            Once you delete your account, there is no going back. All your data will be permanently removed.
+        </p>
+    </div>
+    """, unsafe_allow_html=True)
+    
+    st.markdown("")
+    
+    confirm_text = st.text_input(
+        "Type 'DELETE' to confirm account deletion",
+        key="delete_confirm",
+        placeholder="Type DELETE here"
+    )
+    
+    if st.button("Permanently Delete My Account", type="primary", use_container_width=True):
+        if confirm_text == "DELETE":
+            # Here you would implement account deletion
+            st.error("Account deletion is currently disabled. Please contact support.")
+        else:
+            st.error("Please type 'DELETE' to confirm")

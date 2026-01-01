@@ -235,6 +235,21 @@ def render_all_reminders(user: dict, db: DatabaseManager):
         }
         status_color = status_colors.get(status, '#FF9800')
         
+        # Build amount HTML if exists
+        amount_html = ""
+        if pd.notna(reminder.get('amount')) and reminder['amount'] > 0:
+            amount_html = f'<p style="color: rgba(255,255,255,0.6); margin: 4px 0; font-size: 0.85rem;"><strong>Amount:</strong> ${reminder["amount"]:,.2f}</p>'
+        
+        # Build recurring HTML if exists
+        recurring_html = ""
+        if reminder.get('recurring'):
+            recurring_html = f'<p style="color: rgba(255,255,255,0.5); margin: 4px 0; font-size: 0.8rem;">Recurring: {reminder.get("recurrence_type", "N/A")}</p>'
+        
+        # Build description HTML if exists
+        description_html = ""
+        if pd.notna(reminder.get('description')) and reminder.get('description'):
+            description_html = f'<p style="color: rgba(255,255,255,0.5); margin: 12px 0 0 0; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;"><strong>Description:</strong> {reminder["description"]}</p>'
+        
         # Display as styled card
         st.markdown(f"""
         <div style="
@@ -253,7 +268,7 @@ def render_all_reminders(user: dict, db: DatabaseManager):
                     <p style="color: rgba(255,255,255,0.6); margin: 4px 0; font-size: 0.85rem;">
                         <strong>Status:</strong> <span style="color: {status_color};">{status}</span>
                     </p>
-                    {f'<p style="color: rgba(255,255,255,0.6); margin: 4px 0; font-size: 0.85rem;"><strong>Amount:</strong> ${reminder["amount"]:,.2f}</p>' if pd.notna(reminder.get('amount')) and reminder['amount'] > 0 else ''}
+                    {amount_html}
                 </div>
                 <div style="text-align: right; min-width: 150px;">
                     <p style="color: rgba(255,255,255,0.8); font-size: 0.95rem; font-weight: 500; margin: 0;">
@@ -262,10 +277,10 @@ def render_all_reminders(user: dict, db: DatabaseManager):
                     <p style="color: rgba(255,255,255,0.5); margin: 4px 0; font-size: 0.8rem;">
                         Notify: {reminder.get('notify_days_before', 3)} days before
                     </p>
-                    {f'<p style="color: rgba(255,255,255,0.5); margin: 4px 0; font-size: 0.8rem;">Recurring: {reminder.get("recurrence_type", "N/A")}</p>' if reminder.get('recurring') else ''}
+                    {recurring_html}
                 </div>
             </div>
-            {f'<p style="color: rgba(255,255,255,0.5); margin: 12px 0 0 0; font-size: 0.85rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 12px;"><strong>Description:</strong> {reminder["description"]}</p>' if pd.notna(reminder.get('description')) else ''}
+            {description_html}
         </div>
         """, unsafe_allow_html=True)
         
