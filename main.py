@@ -90,7 +90,7 @@ st.markdown("""
     }
     
     /* Text colors */
-    p, span, label, .stMarkdown, div {
+    p, span, label, .stMarkdown {
         color: rgba(255, 255, 255, 0.85) !important;
     }
     
@@ -128,7 +128,6 @@ st.markdown("""
     /* Input fields */
     .stTextInput > div > div > input,
     .stNumberInput > div > div > input,
-    .stSelectbox > div > div > div,
     .stDateInput > div > div > input,
     .stTextArea textarea {
         background: rgba(255, 255, 255, 0.05) !important;
@@ -143,12 +142,75 @@ st.markdown("""
     
     .stTextInput > div > div > input:focus,
     .stNumberInput > div > div > input:focus,
-    .stSelectbox > div > div > div:focus,
     .stDateInput > div > div > input:focus,
     .stTextArea textarea:focus {
         border-color: #3b82f6 !important;
         box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
         background: rgba(255, 255, 255, 0.08) !important;
+    }
+    
+    /* SELECTBOX / DROPDOWN - FIX VISIBILITY */
+    .stSelectbox > div > div {
+        background: rgba(255, 255, 255, 0.05) !important;
+        border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        border-radius: 12px !important;
+    }
+    
+    .stSelectbox [data-baseweb="select"] > div {
+        background: transparent !important;
+        border: none !important;
+    }
+    
+    /* Selected value in dropdown - MAKE VISIBLE WITH WHITE TEXT */
+    .stSelectbox [data-baseweb="select"] span,
+    .stSelectbox [data-baseweb="select"] > div > div,
+    .stSelectbox [data-baseweb="select"] > div > div > div,
+    [data-baseweb="select"] [data-testid="stMarkdownContainer"] p,
+    [data-baseweb="select"] > div > div:first-child {
+        color: #ffffff !important;
+        -webkit-text-fill-color: #ffffff !important;
+        opacity: 1 !important;
+    }
+    
+    /* Dropdown arrow icon */
+    [data-baseweb="select"] svg {
+        fill: rgba(255, 255, 255, 0.7) !important;
+    }
+    
+    /* Dropdown menu container */
+    [data-baseweb="popover"] {
+        background: rgba(15, 20, 30, 0.98) !important;
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.15) !important;
+        border-radius: 12px !important;
+        margin-top: 4px !important;
+    }
+    
+    [data-baseweb="menu"] {
+        background: transparent !important;
+    }
+    
+    /* Dropdown options */
+    [role="listbox"] {
+        background: transparent !important;
+        padding: 8px !important;
+    }
+    
+    [role="option"] {
+        background: transparent !important;
+        color: #ffffff !important;
+        padding: 12px 16px !important;
+        border-radius: 8px !important;
+        margin: 2px 0 !important;
+        font-family: 'Inter', sans-serif !important;
+    }
+    
+    [role="option"]:hover {
+        background: rgba(59, 130, 246, 0.15) !important;
+    }
+    
+    [role="option"][aria-selected="true"] {
+        background: rgba(59, 130, 246, 0.25) !important;
     }
     
     /* Buttons - primary (orange accent like Base44) */
@@ -194,12 +256,24 @@ st.markdown("""
         transform: translateY(-2px);
     }
     
-    /* Sidebar navigation buttons */
-    [data-testid="stSidebar"] .nav-button button {
+    /* Sidebar navigation buttons - MINIMAL SPACING */
+    [data-testid="stSidebar"] .stButton {
+        margin-bottom: 0px !important;
+    }
+    
+    [data-testid="stSidebar"] .nav-button,
+    [data-testid="stSidebar"] .nav-button-active {
+        margin: 0 !important;
+        padding: 0 !important;
+    }
+    
+    [data-testid="stSidebar"] .nav-button button,
+    [data-testid="stSidebar"] .nav-button-active button {
         background: transparent !important;
         border: none !important;
         border-radius: 8px !important;
-        padding: 12px 16px !important;
+        padding: 10px 16px !important;
+        margin: 1px 0 !important;
         text-align: left !important;
         justify-content: flex-start !important;
         color: rgba(255, 255, 255, 0.6) !important;
@@ -280,52 +354,6 @@ st.markdown("""
     
     [data-testid="stDataFrame"] > div {
         background: transparent !important;
-    }
-    
-    /* Selectbox and dropdown styling */
-    [data-baseweb="select"] {
-        background: rgba(255, 255, 255, 0.05) !important;
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        border-radius: 12px !important;
-        min-height: 45px !important;
-    }
-    
-    [data-baseweb="select"] > div {
-        background: transparent !important;
-        color: #ffffff !important;
-        padding: 8px 12px !important;
-    }
-    
-    [data-baseweb="select"] div, [data-baseweb="select"] span {
-        color: #ffffff !important;
-        font-family: 'Inter', sans-serif !important;
-    }
-    
-    /* Dropdown menu */
-    [data-baseweb="popover"] {
-        background: rgba(20, 30, 45, 0.98) !important;
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        border-radius: 12px !important;
-        margin-top: 4px !important;
-    }
-    
-    [role="listbox"] {
-        background: transparent !important;
-        padding: 8px !important;
-    }
-    
-    [role="option"] {
-        background: transparent !important;
-        color: #ffffff !important;
-        padding: 12px 16px !important;
-        border-radius: 8px !important;
-        margin: 2px 0 !important;
-        font-family: 'Inter', sans-serif !important;
-    }
-    
-    [role="option"]:hover {
-        background: rgba(59, 130, 246, 0.1) !important;
     }
     
     /* Expander styling */
@@ -427,7 +455,7 @@ st.markdown("""
     /* Divider */
     hr {
         border-color: rgba(255, 255, 255, 0.1) !important;
-        margin: 1.5rem 0 !important;
+        margin: 1rem 0 !important;
     }
     
     /* Code blocks */
@@ -492,7 +520,7 @@ def render_sidebar(user: dict):
     
     # Logo and tagline at top with BLUE gradient styling
     st.sidebar.markdown("""
-        <div style="padding: 0 0 24px 0; font-family: 'Inter', sans-serif;">
+        <div style="padding: 0 0 12px 0; font-family: 'Inter', sans-serif;">
             <h1 style="font-size: 1.8rem; font-weight: 700; margin: 0; font-family: 'Inter', sans-serif;
                 background: linear-gradient(135deg, #ffffff 0%, #3b82f6 100%);
                 -webkit-background-clip: text; -webkit-text-fill-color: transparent;
@@ -517,7 +545,7 @@ def render_sidebar(user: dict):
         "Profile"
     ]
     
-    # Create a button for each navigation item
+    # Create a button for each navigation item with minimal spacing
     for item in nav_items:
         is_active = st.session_state.current_page == item
         button_class = "nav-button-active" if is_active else "nav-button"
@@ -528,10 +556,8 @@ def render_sidebar(user: dict):
             st.rerun()
         st.sidebar.markdown('</div>', unsafe_allow_html=True)
     
-    # Create container for bottom section - using empty space
-    st.sidebar.markdown("""
-        <div style="height: 120px;"></div>
-    """, unsafe_allow_html=True)
+    # Spacer to push user info to bottom
+    st.sidebar.markdown("""<div style="height: 60px;"></div>""", unsafe_allow_html=True)
     
     st.sidebar.markdown("---")
     
@@ -542,14 +568,14 @@ def render_sidebar(user: dict):
         initial = full_name[0].upper() if full_name else 'U'
         
         st.sidebar.markdown(f"""
-            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 0; margin-bottom: 12px; font-family: 'Inter', sans-serif;">
-                <div style="width: 40px; height: 40px; background: linear-gradient(135deg, #3b82f6, #6366f1); 
+            <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; margin-bottom: 8px; font-family: 'Inter', sans-serif;">
+                <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #3b82f6, #6366f1); 
                     border-radius: 50%; display: flex; align-items: center; justify-content: center; 
-                    color: white; font-weight: 600; font-size: 15px; flex-shrink: 0;">{initial}</div>
+                    color: white; font-weight: 600; font-size: 14px; flex-shrink: 0;">{initial}</div>
                 <div style="overflow: hidden;">
-                    <p style="color: rgba(255,255,255,0.85); font-size: 0.9rem; margin: 0; font-weight: 500;
+                    <p style="color: rgba(255,255,255,0.85); font-size: 0.85rem; margin: 0; font-weight: 500;
                         font-family: 'Inter', sans-serif;">{full_name}</p>
-                    <p style="color: rgba(255,255,255,0.45); font-size: 0.75rem; margin: 0; 
+                    <p style="color: rgba(255,255,255,0.45); font-size: 0.7rem; margin: 0; 
                         overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
                         font-family: 'Inter', sans-serif;">{email}</p>
                 </div>
