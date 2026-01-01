@@ -19,31 +19,32 @@ def render_friends(user: dict, db: DatabaseManager):
         render_transactions(user, db)
 
 def render_friends_overview(user: dict, db: DatabaseManager):
-    """Render friends overview"""
+    """Render friends overview with side-by-side summary"""
     friends = db.get_user_friends(user['id'])
     
     if not friends:
         st.info("No friends added yet. Add a friend to start tracking shared expenses!")
         return
     
-    # Summary
+    # Summary - You're Owed and You Owe SIDE BY SIDE
     total_owed = sum(f['balance'] for f in friends if f['balance'] > 0)
     total_owe = sum(abs(f['balance']) for f in friends if f['balance'] < 0)
     
     col1, col2 = st.columns(2)
+    
     with col1:
         st.markdown(f"""
-        <div style="background: rgba(76, 175, 80, 0.15); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 10px; padding: 12px; text-align: center;">
-            <p style="color: rgba(255,255,255,0.6); font-size: 0.7rem; margin: 0; text-transform: uppercase;">You're Owed</p>
-            <p style="color: #4CAF50; font-size: 1.3rem; font-weight: 700; margin: 4px 0 0 0;">${total_owed:,.2f}</p>
+        <div style="background: rgba(76, 175, 80, 0.12); border: 1px solid rgba(76, 175, 80, 0.3); border-radius: 8px; padding: 10px; text-align: center;">
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.6rem; margin: 0; text-transform: uppercase;">You're Owed</p>
+            <p style="color: #4CAF50; font-size: 1.1rem; font-weight: 700; margin: 4px 0 0 0;">${total_owed:,.2f}</p>
         </div>
         """, unsafe_allow_html=True)
     
     with col2:
         st.markdown(f"""
-        <div style="background: rgba(244, 67, 54, 0.15); border: 1px solid rgba(244, 67, 54, 0.3); border-radius: 10px; padding: 12px; text-align: center;">
-            <p style="color: rgba(255,255,255,0.6); font-size: 0.7rem; margin: 0; text-transform: uppercase;">You Owe</p>
-            <p style="color: #F44336; font-size: 1.3rem; font-weight: 700; margin: 4px 0 0 0;">${total_owe:,.2f}</p>
+        <div style="background: rgba(244, 67, 54, 0.12); border: 1px solid rgba(244, 67, 54, 0.3); border-radius: 8px; padding: 10px; text-align: center;">
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.6rem; margin: 0; text-transform: uppercase;">You Owe</p>
+            <p style="color: #F44336; font-size: 1.1rem; font-weight: 700; margin: 4px 0 0 0;">${total_owe:,.2f}</p>
         </div>
         """, unsafe_allow_html=True)
     
@@ -65,58 +66,39 @@ def render_friends_overview(user: dict, db: DatabaseManager):
         
         initial = friend['name'][0].upper() if friend['name'] else 'F'
         
-        st.markdown(f"""
-        <div style="
-            background: rgba(30, 45, 65, 0.5);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        ">
-            <div style="
-                width: 36px;
-                height: 36px;
-                background: linear-gradient(135deg, #3b82f6, #6366f1);
-                border-radius: 50%;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                color: white;
-                font-weight: 600;
-                font-size: 14px;
-                flex-shrink: 0;
-            ">{initial}</div>
-            <div style="flex: 1;">
-                <p style="color: #ffffff; font-size: 0.9rem; font-weight: 600; margin: 0;">{friend['name']}</p>
-                <p style="color: {balance_color}; font-size: 0.75rem; margin: 2px 0 0 0;">{balance_text}</p>
+        # Friend card with actions on right
+        col_main, col_actions = st.columns([5, 2])
+        
+        with col_main:
+            st.markdown(f"""
+            <div style="background: rgba(30, 45, 65, 0.5); border-radius: 8px; padding: 10px; display: flex; align-items: center; gap: 10px;">
+                <div style="width: 32px; height: 32px; background: linear-gradient(135deg, #3b82f6, #6366f1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 12px; flex-shrink: 0;">{initial}</div>
+                <div style="flex: 1;">
+                    <p style="color: #ffffff; font-size: 0.85rem; font-weight: 500; margin: 0;">{friend['name']}</p>
+                    <p style="color: {balance_color}; font-size: 0.7rem; margin: 2px 0 0 0;">{balance_text}</p>
+                </div>
             </div>
-        </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
         
-        # Compact action buttons
-        cols = st.columns([1, 1, 1, 2])
-        
-        with cols[0]:
-            if st.button("+ Lent", key=f"lent_{friend['id']}", help="You lent money"):
-                st.session_state.selected_friend = friend['id']
-                st.session_state.transaction_type = 'lent'
-        
-        with cols[1]:
-            if st.button("+ Borrowed", key=f"borrowed_{friend['id']}", help="You borrowed"):
-                st.session_state.selected_friend = friend['id']
-                st.session_state.transaction_type = 'borrowed'
-        
-        with cols[2]:
-            if st.button("✕", key=f"del_friend_{friend['id']}", help="Delete friend"):
-                db.delete_friend(user['id'], friend['id'])
-                st.rerun()
+        with col_actions:
+            # Action buttons side by side
+            btn_cols = st.columns(3)
+            with btn_cols[0]:
+                if st.button("↑", key=f"lent_{friend['id']}", help="You lent"):
+                    st.session_state.selected_friend = friend['id']
+                    st.session_state.transaction_type = 'lent'
+            with btn_cols[1]:
+                if st.button("↓", key=f"bor_{friend['id']}", help="You borrowed"):
+                    st.session_state.selected_friend = friend['id']
+                    st.session_state.transaction_type = 'borrowed'
+            with btn_cols[2]:
+                if st.button("🗑", key=f"del_f_{friend['id']}", help="Delete"):
+                    db.delete_friend(user['id'], friend['id'])
+                    st.rerun()
         
         st.markdown('<div style="height: 4px;"></div>', unsafe_allow_html=True)
     
-    # Quick add transaction modal
+    # Quick transaction form
     if 'selected_friend' in st.session_state and st.session_state.selected_friend:
         render_quick_transaction(user, db)
 
@@ -133,15 +115,19 @@ def render_quick_transaction(user: dict, db: DatabaseManager):
         return
     
     st.markdown("---")
-    st.markdown(f"#### Quick Transaction with {friend['name']}")
+    action = "Lent to" if trans_type == 'lent' else "Borrowed from"
+    st.markdown(f"#### {action} {friend['name']}")
     
-    with st.form("quick_transaction"):
-        amount = st.number_input("Amount", min_value=0.01, step=1.0)
-        description = st.text_input("Description", placeholder="e.g., Lunch")
-        
+    with st.form("quick_trans"):
         col1, col2 = st.columns(2)
         with col1:
-            if st.form_submit_button("Add Transaction", type="primary", use_container_width=True):
+            amount = st.number_input("Amount", min_value=0.01, step=1.0)
+        with col2:
+            description = st.text_input("Description", placeholder="e.g., Lunch")
+        
+        btn_col1, btn_col2 = st.columns(2)
+        with btn_col1:
+            if st.form_submit_button("Add", type="primary", use_container_width=True):
                 if amount > 0:
                     db.add_transaction(
                         user_id=user['id'],
@@ -152,10 +138,10 @@ def render_quick_transaction(user: dict, db: DatabaseManager):
                         date=datetime.now().strftime("%Y-%m-%d")
                     )
                     st.session_state.selected_friend = None
-                    st.success("Transaction added!")
+                    st.success("Added!")
                     st.rerun()
         
-        with col2:
+        with btn_col2:
             if st.form_submit_button("Cancel", use_container_width=True):
                 st.session_state.selected_friend = None
                 st.rerun()
@@ -173,7 +159,7 @@ def render_add_friend(user: dict, db: DatabaseManager):
         with col2:
             email = st.text_input("Email (optional)")
         
-        notes = st.text_area("Notes (optional)")
+        notes = st.text_area("Notes (optional)", height=60)
         
         if st.form_submit_button("Add Friend", type="primary", use_container_width=True):
             if not name:
@@ -227,45 +213,21 @@ def render_transactions(user: dict, db: DatabaseManager):
                 text = "You borrowed"
             
             try:
-                trans_date = datetime.strptime(trans['date'], "%Y-%m-%d").strftime("%b %d, %Y")
+                trans_date = datetime.strptime(trans['date'], "%Y-%m-%d").strftime("%b %d")
             except:
                 trans_date = trans['date']
             
             st.markdown(f"""
-            <div style="
-                background: rgba(30, 45, 65, 0.4);
-                border-radius: 8px;
-                padding: 10px 12px;
-                margin-bottom: 6px;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            ">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="color: {color}; font-size: 1.1rem; font-weight: bold;">{icon}</span>
-                    <div>
-                        <p style="color: #ffffff; font-size: 0.85rem; font-weight: 500; margin: 0;">{trans['description']}</p>
-                        <p style="color: rgba(255,255,255,0.5); font-size: 0.7rem; margin: 0;">{text} | {trans_date}</p>
+            <div style="background: rgba(30, 45, 65, 0.4); border-radius: 6px; padding: 8px 10px; margin-bottom: 4px;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="color: {color}; font-size: 1rem; font-weight: bold;">{icon}</span>
+                        <div>
+                            <p style="color: #ffffff; font-size: 0.8rem; font-weight: 500; margin: 0;">{trans['description']}</p>
+                            <p style="color: rgba(255,255,255,0.4); font-size: 0.6rem; margin: 0;">{text} • {trans_date}</p>
+                        </div>
                     </div>
+                    <p style="color: {color}; font-size: 0.9rem; font-weight: 600; margin: 0;">${trans['amount']:,.2f}</p>
                 </div>
-                <p style="color: {color}; font-size: 0.95rem; font-weight: 600; margin: 0;">${trans['amount']:,.2f}</p>
             </div>
             """, unsafe_allow_html=True)
-    
-    # Button styling for mobile
-    st.markdown("""
-    <style>
-    @media (max-width: 768px) {
-        button:has(div:contains("+ Lent")), button:has(div:contains("+ Borrowed")) {
-            padding: 4px 8px !important;
-            font-size: 0.7rem !important;
-        }
-        button:has(div:contains("✕")) {
-            background: rgba(255, 80, 80, 0.15) !important;
-            color: #ff6b6b !important;
-            border: 1px solid rgba(255, 80, 80, 0.3) !important;
-            padding: 4px 10px !important;
-        }
-    }
-    </style>
-    """, unsafe_allow_html=True)
