@@ -201,181 +201,99 @@ st.markdown("""
     
     hr { border-color: rgba(255, 255, 255, 0.1) !important; margin: 0.5rem 0 !important; }
     
-    /* ========== MOBILE TOP BAR (CSS only, no JS) ========== */
-    .mobile-header {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 56px;
-        background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
-        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-        z-index: 99999;
-        padding: 8px 16px;
-        align-items: center;
-        justify-content: space-between;
-    }
-    
-    .mobile-header-logo {
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .mobile-header-logo h1 {
-        font-size: 1.2rem !important;
-        margin: 0 !important;
-        line-height: 1.2 !important;
-    }
-    
-    .mobile-header-logo p {
-        font-size: 0.5rem !important;
-        color: rgba(255, 255, 255, 0.4) !important;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin: 0 !important;
-    }
-    
-    .mobile-header-avatar {
-        width: 34px;
-        height: 34px;
-        border-radius: 50%;
-        background: linear-gradient(135deg, #3b82f6, #6366f1);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        color: white;
-        font-weight: 600;
-        font-size: 13px;
-        border: 2px solid rgba(255,255,255,0.2);
-    }
-    
-    /* ========== MOBILE BOTTOM NAV ========== */
-    .mobile-nav-wrapper {
-        display: none;
-    }
-    
     /* ========== MOBILE RESPONSIVE ========== */
     @media (max-width: 768px) {
-        /* Show mobile elements */
-        .mobile-header { display: flex !important; }
-        .mobile-nav-wrapper { display: block !important; }
-        
         /* Hide desktop sidebar */
         [data-testid="stSidebar"] { display: none !important; }
         
         /* Adjust main content */
         .block-container {
             padding-top: 70px !important;
-            padding-bottom: 90px !important;
+            padding-bottom: 75px !important;
             padding-left: 10px !important;
             padding-right: 10px !important;
             max-width: 100% !important;
         }
         
         /* Smaller headers */
-        h1 { font-size: 1.4rem !important; margin-bottom: 0.5rem !important; }
-        h2 { font-size: 1.2rem !important; margin-bottom: 0.5rem !important; }
-        h3 { font-size: 1rem !important; margin-bottom: 0.5rem !important; }
-        h4 { font-size: 0.9rem !important; }
+        h1 { font-size: 1.3rem !important; margin-bottom: 0.3rem !important; }
+        h2 { font-size: 1.1rem !important; margin-bottom: 0.3rem !important; }
+        h3 { font-size: 0.95rem !important; margin-bottom: 0.4rem !important; }
+        h4 { font-size: 0.85rem !important; }
         
-        p, span, label, .stMarkdown { font-size: 0.82rem !important; }
+        p, span, label, .stMarkdown { font-size: 0.8rem !important; }
         
         /* Compact metrics */
-        [data-testid="stMetric"] { padding: 10px !important; border-radius: 10px !important; }
-        [data-testid="stMetric"] label { font-size: 0.6rem !important; }
-        [data-testid="stMetric"] [data-testid="stMetricValue"] { font-size: 1.1rem !important; }
+        [data-testid="stMetric"] { padding: 8px !important; border-radius: 8px !important; }
+        [data-testid="stMetric"] label { font-size: 0.55rem !important; }
+        [data-testid="stMetric"] [data-testid="stMetricValue"] { font-size: 0.95rem !important; }
         
         /* Compact inputs */
         .stTextInput > div > div > input,
         .stNumberInput > div > div > input,
         .stDateInput > div > div > input,
         .stTextArea textarea {
-            padding: 8px 10px !important;
-            font-size: 0.82rem !important;
-            border-radius: 8px !important;
+            padding: 6px 8px !important;
+            font-size: 0.8rem !important;
+            border-radius: 6px !important;
         }
         
         /* Compact buttons */
         .stButton > button {
-            padding: 6px 12px !important;
-            font-size: 0.75rem !important;
-            border-radius: 8px !important;
+            padding: 5px 10px !important;
+            font-size: 0.7rem !important;
+            border-radius: 6px !important;
         }
         
-        .stButton > button[kind="primary"] { padding: 8px 16px !important; }
+        .stButton > button[kind="primary"] { padding: 6px 12px !important; }
         
         /* Compact tabs */
         .stTabs [data-baseweb="tab-list"] {
-            padding: 3px;
+            padding: 2px;
             gap: 2px;
-            border-radius: 10px;
+            border-radius: 8px;
             overflow-x: auto;
             flex-wrap: nowrap;
         }
         
         .stTabs [data-baseweb="tab"] {
-            padding: 6px 10px !important;
-            font-size: 0.7rem !important;
-            border-radius: 8px !important;
+            padding: 5px 8px !important;
+            font-size: 0.65rem !important;
+            border-radius: 6px !important;
             white-space: nowrap;
         }
         
         /* Compact form */
-        [data-testid="stForm"] { padding: 12px !important; border-radius: 10px !important; }
+        [data-testid="stForm"] { padding: 10px !important; border-radius: 8px !important; }
         
         /* Compact selectbox */
-        .stSelectbox > div > div { border-radius: 8px !important; }
-        [role="option"] { padding: 8px 10px !important; font-size: 0.82rem !important; }
+        .stSelectbox > div > div { border-radius: 6px !important; }
+        [role="option"] { padding: 6px 8px !important; font-size: 0.8rem !important; }
         
         /* Compact alerts */
-        .stAlert { padding: 8px 10px !important; border-radius: 8px !important; }
+        .stAlert { padding: 6px 8px !important; border-radius: 6px !important; }
         
-        hr { margin: 0.3rem 0 !important; }
+        hr { margin: 0.2rem 0 !important; }
         
         /* Compact expander */
-        .streamlit-expanderHeader { padding: 10px !important; border-radius: 8px !important; font-size: 0.82rem !important; }
-        .streamlit-expanderContent { padding: 10px !important; }
+        .streamlit-expanderHeader { padding: 8px !important; border-radius: 6px !important; font-size: 0.8rem !important; }
+        .streamlit-expanderContent { padding: 8px !important; }
         
-        /* Mobile bottom nav styling */
-        .mobile-bottom-nav-container {
-            position: fixed !important;
-            bottom: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%) !important;
-            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
-            z-index: 99999 !important;
-            padding: 8px 4px !important;
-        }
-        
-        .mobile-bottom-nav-container .stButton > button {
-            background: transparent !important;
-            border: none !important;
-            padding: 4px 2px !important;
-            font-size: 0.55rem !important;
-            color: rgba(255, 255, 255, 0.5) !important;
-            display: flex !important;
-            flex-direction: column !important;
-            align-items: center !important;
-            min-height: 50px !important;
-        }
-        
-        .mobile-bottom-nav-container .stButton > button:hover {
-            background: rgba(255, 255, 255, 0.05) !important;
-            color: #FF9000 !important;
+        /* Force columns to stay side by side on mobile for certain sections */
+        [data-testid="column"] {
+            min-width: 0 !important;
         }
     }
     
     @media (max-width: 480px) {
         .block-container { padding-left: 6px !important; padding-right: 6px !important; }
-        h1 { font-size: 1.2rem !important; }
-        h2 { font-size: 1.05rem !important; }
-        h3 { font-size: 0.92rem !important; }
+        h1 { font-size: 1.15rem !important; }
+        h2 { font-size: 1rem !important; }
+        h3 { font-size: 0.9rem !important; }
         
-        [data-testid="stMetric"] [data-testid="stMetricValue"] { font-size: 1rem !important; }
+        [data-testid="stMetric"] [data-testid="stMetricValue"] { font-size: 0.85rem !important; }
         
-        .stTabs [data-baseweb="tab"] { padding: 5px 8px !important; font-size: 0.65rem !important; }
+        .stTabs [data-baseweb="tab"] { padding: 4px 6px !important; font-size: 0.6rem !important; }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -391,95 +309,131 @@ def initialize_session_state():
         st.session_state.current_page = "Dashboard"
 
 
-def render_mobile_header(user: dict):
-    """Render mobile header (CSS-only, no JavaScript)"""
+def render_mobile_top_bar(user: dict):
+    """Render mobile top bar with logo and profile"""
     initial = user.get('full_name', 'U')[0].upper() if user else 'U'
     
     st.markdown(f"""
-    <div class="mobile-header">
-        <div class="mobile-header-logo">
-            <h1>OSCAR</h1>
-            <p>Track. Save. Review.</p>
+    <style>
+    @media (max-width: 768px) {{
+        .mobile-top-bar {{
+            display: flex !important;
+        }}
+    }}
+    @media (min-width: 769px) {{
+        .mobile-top-bar {{
+            display: none !important;
+        }}
+    }}
+    </style>
+    <div class="mobile-top-bar" style="
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 56px;
+        background: linear-gradient(180deg, #0f1419 0%, #1a1f2e 100%);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        z-index: 99999;
+        padding: 8px 12px;
+        align-items: center;
+        justify-content: space-between;
+    ">
+        <div style="display: flex; flex-direction: column;">
+            <span style="font-size: 1.1rem; font-weight: 700; color: white; 
+                background: linear-gradient(135deg, #ffffff 0%, #3b82f6 100%);
+                -webkit-background-clip: text; -webkit-text-fill-color: transparent;">OSCAR</span>
+            <span style="font-size: 0.45rem; color: rgba(255, 255, 255, 0.4); 
+                text-transform: uppercase; letter-spacing: 0.1em;">Track. Save. Review.</span>
         </div>
-        <div class="mobile-header-avatar">{initial}</div>
+        <div style="width: 32px; height: 32px; border-radius: 50%; 
+            background: linear-gradient(135deg, #3b82f6, #6366f1);
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 600; font-size: 12px;
+            border: 2px solid rgba(255,255,255,0.2);">{initial}</div>
     </div>
     """, unsafe_allow_html=True)
 
 
 def render_mobile_bottom_nav():
-    """Render mobile bottom navigation using Streamlit native buttons"""
+    """Render mobile bottom navigation bar - horizontal layout"""
     
-    # This container will be styled via CSS to appear at bottom on mobile
-    st.markdown('<div class="mobile-nav-wrapper">', unsafe_allow_html=True)
-    
-    # Create bottom navigation container
-    nav_container = st.container()
-    
-    with nav_container:
-        cols = st.columns(7)
-        
-        nav_items = [
-            ("🏠", "Dashboard"),
-            ("💰", "Expenses"),
-            ("📅", "Dates"),
-            ("💳", "Budget Tracker"),
-            ("👥", "Friends"),
-            ("📊", "Analytics"),
-            ("👤", "Profile")
-        ]
-        
-        for idx, (icon, name) in enumerate(nav_items):
-            with cols[idx]:
-                short_name = name.replace(" Tracker", "")
-                if st.button(f"{icon}\n{short_name}", key=f"mob_nav_{name}", use_container_width=True):
-                    st.session_state.current_page = name
-                    st.rerun()
-    
-    st.markdown('</div>', unsafe_allow_html=True)
-    
-    # CSS to position this at bottom on mobile
+    # CSS for horizontal bottom nav
     st.markdown("""
     <style>
     @media (max-width: 768px) {
-        .mobile-nav-wrapper {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%);
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            z-index: 99999;
-            padding: 4px;
+        .mobile-nav-row {
+            position: fixed !important;
+            bottom: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%) !important;
+            border-top: 1px solid rgba(255, 255, 255, 0.08) !important;
+            z-index: 99999 !important;
+            padding: 6px 4px 8px 4px !important;
+            margin: 0 !important;
         }
         
-        .mobile-nav-wrapper [data-testid="column"] {
+        .mobile-nav-row [data-testid="column"] {
             padding: 0 2px !important;
+            flex: 1 !important;
         }
         
-        .mobile-nav-wrapper .stButton > button {
+        .mobile-nav-row .stButton > button {
+            width: 100% !important;
             background: transparent !important;
             border: none !important;
-            padding: 6px 2px !important;
+            padding: 4px 2px !important;
             font-size: 0.5rem !important;
             color: rgba(255, 255, 255, 0.6) !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: center !important;
+            justify-content: center !important;
+            min-height: 44px !important;
+            line-height: 1.2 !important;
             white-space: pre-line !important;
-            line-height: 1.3 !important;
-            min-height: 52px !important;
+            border-radius: 8px !important;
         }
         
-        .mobile-nav-wrapper .stButton > button:hover {
+        .mobile-nav-row .stButton > button:hover {
             background: rgba(255, 144, 0, 0.15) !important;
             color: #FF9000 !important;
         }
     }
     
     @media (min-width: 769px) {
-        .mobile-nav-wrapper {
+        .mobile-nav-row {
             display: none !important;
         }
     }
     </style>
     """, unsafe_allow_html=True)
+    
+    # Create the bottom nav container
+    st.markdown('<div class="mobile-nav-row">', unsafe_allow_html=True)
+    
+    # Navigation items - 7 columns for 7 items
+    cols = st.columns(7)
+    
+    nav_items = [
+        ("🏠", "Dashboard", "Home"),
+        ("💰", "Expenses", "Expense"),
+        ("📅", "Dates", "Dates"),
+        ("💳", "Budget Tracker", "Budget"),
+        ("👥", "Friends", "Friends"),
+        ("📊", "Analytics", "Stats"),
+        ("👤", "Profile", "Profile")
+    ]
+    
+    for idx, (icon, page_name, label) in enumerate(nav_items):
+        with cols[idx]:
+            if st.button(f"{icon}\n{label}", key=f"mob_{page_name}", use_container_width=True):
+                st.session_state.current_page = page_name
+                st.rerun()
+    
+    st.markdown('</div>', unsafe_allow_html=True)
 
 
 def render_sidebar(user: dict):
@@ -500,9 +454,7 @@ def render_sidebar(user: dict):
     st.sidebar.markdown("---")
     
     # Navigation items
-    nav_items = ["Dashboard", "Expenses", "Dates", "Budget Tracker", "Friends", "Analytics", "Profile"]
-    
-    for item in nav_items:
+    for item in ["Dashboard", "Expenses", "Dates", "Budget Tracker", "Friends", "Analytics", "Profile"]:
         if st.sidebar.button(item, key=f"nav_{item}", use_container_width=True):
             st.session_state.current_page = item
             st.rerun()
@@ -542,8 +494,8 @@ def render_main_content(user: dict):
     """Render main content"""
     db = DatabaseManager()
     
-    # Render mobile header (hidden on desktop via CSS)
-    render_mobile_header(user)
+    # Render mobile top bar (hidden on desktop)
+    render_mobile_top_bar(user)
     
     # Render desktop sidebar
     page = render_sidebar(user)
@@ -564,7 +516,7 @@ def render_main_content(user: dict):
     elif page == "Profile":
         render_profile(user, db)
     
-    # Render mobile bottom nav (hidden on desktop via CSS)
+    # Render mobile bottom nav (hidden on desktop)
     render_mobile_bottom_nav()
 
 
