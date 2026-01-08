@@ -108,40 +108,25 @@ def render_view_expenses(user: dict, db: DatabaseManager):
         except:
             exp_date = str(expense['date'])[:10] if expense['date'] else ""
         
-        # Card with delete button inside, using flexbox
-        st.markdown(f"""
-        <div style="background: rgba(30, 45, 65, 0.4); border-radius: 8px; padding: 10px; margin-bottom: 6px; border-left: 3px solid #FF9000;">
-            <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px;">
-                <div style="flex: 1; min-width: 0;">
-                    <p style="color: #ffffff; font-size: 0.85rem; font-weight: 500; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{expense['title']}</p>
-                    <p style="color: rgba(255,255,255,0.4); font-size: 0.65rem; margin: 2px 0 0 0;">{expense['category']} • {expense['payment_method']} • {exp_date}</p>
-                </div>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <span style="color: #FF9000; font-size: 0.95rem; font-weight: 600;">${expense['amount']:,.2f}</span>
+        col_card, col_btn = st.columns([6, 1])
+
+        with col_card:
+            # Card with delete button inside, using flexbox
+            st.markdown(f"""
+            <div style="background: rgba(30, 45, 65, 0.4); border-radius: 8px; padding: 10px; margin-bottom: 6px; border-left: 3px solid #FF9000; height: 100%;">
+                <div style="display: flex; justify-content: space-between; align-items: center; gap: 8px; height: 100%;">
+                    <div style="flex: 1; min-width: 0;">
+                        <p style="color: #ffffff; font-size: 0.85rem; font-weight: 500; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{expense['title']}</p>
+                        <p style="color: rgba(255,255,255,0.4); font-size: 0.65rem; margin: 2px 0 0 0;">{expense['category']} • {expense['payment_method']} • {exp_date}</p>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <span style="color: #FF9000; font-size: 0.95rem; font-weight: 600;">${expense['amount']:,.2f}</span>
+                    </div>
                 </div>
             </div>
-        </div>
-        """, unsafe_allow_html=True)
+            """, unsafe_allow_html=True)
         
-        # Delete button right after HTML (will appear inline on mobile)
-        col_spacer, col_btn = st.columns([5, 1])
         with col_btn:
-            if st.button("🗑", key=f"del_{expense_id}", help="Delete"):
+            if st.button("Delete", key=f"del_{expense_id}", help="Delete", use_container_width=True):
                 db.delete_expense(user['id'], expense_id)
                 st.rerun()
-        
-        # Custom CSS to position delete button
-        st.markdown(f"""
-        <style>
-        [data-testid="stHorizontalBlock"]:has(button[key="del_{expense_id}"]) {{
-            margin-top: -45px !important;
-            margin-bottom: 8px !important;
-        }}
-        [data-testid="stHorizontalBlock"]:has(button[key="del_{expense_id}"]) .stButton > button {{
-            background: rgba(244, 67, 54, 0.15) !important;
-            border: 1px solid rgba(244, 67, 54, 0.3) !important;
-            padding: 4px 8px !important;
-            min-height: 28px !important;
-        }}
-        </style>
-        """, unsafe_allow_html=True)
