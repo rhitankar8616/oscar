@@ -178,7 +178,7 @@ st.markdown("""
 
         .block-container {
             padding-top: 70px !important;
-            padding-bottom: 80px !important;
+            padding-bottom: 100px !important;
             padding-left: 8px !important;
             padding-right: 8px !important;
             max-width: 100% !important;
@@ -215,57 +215,11 @@ st.markdown("""
         [data-testid="stForm"] { padding: 10px !important; border-radius: 8px !important; }
         [role="option"] { padding: 6px 8px !important; font-size: 0.8rem !important; }
         .stAlert { padding: 6px 8px !important; border-radius: 6px !important; }
-
-        .bottom-nav-container {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: auto;
-            background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%);
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding: 10px 5px 25px 5px;
-            z-index: 99999;
-            display: flex !important;
-            justify-content: space-around;
-            border-radius: 16px 16px 0 0;
-        }
-
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-decoration: none;
-            color: rgba(255, 255, 255, 0.6);
-            font-size: 0.5rem;
-            flex: 1;
-            padding: 4px 0;
-            background: transparent;
-            border-radius: 8px;
-            transition: all 0.2s ease-in-out;
-        }
-
-        .nav-item:hover {
-            background: rgba(255, 144, 0, 0.15);
-            color: #FF9000;
-        }
-
-        .nav-item.active {
-            background: rgba(255, 144, 0, 0.2);
-            color: #FF9000;
-        }
-
-        .nav-item i {
-            font-size: 1.5rem;
-            margin-bottom: 4px;
-        }
     }
 
     /* Hide mobile elements on desktop */
     @media (min-width: 769px) {
         .mobile-top-bar { display: none !important; }
-        .bottom-nav-container { display: none !important; }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -316,26 +270,80 @@ def render_mobile_top_bar(user: dict):
 
 
 def render_mobile_bottom_nav():
-    """Render mobile bottom navigation using HTML links and query params."""
+    """Render mobile bottom navigation using Streamlit buttons."""
     current_page = st.session_state.get('current_page', 'Dashboard')
 
     nav_items = [
-        ("Dashboard", "lni lni-grid-alt", "Home"),
-        ("Expenses", "lni lni-coin", "Expense"),
-        ("Dates", "lni lni-calendar", "Dates"),
-        ("Budget Tracker", "lni lni-calculator", "Budget"),
-        ("Friends", "lni lni-users", "Friends"),
-        ("Analytics", "lni lni-stats-up", "Stats"),
-        ("Profile", "lni lni-user", "Profile"),
+        ("Dashboard", "🏠", "Home"),
+        ("Expenses", "💰", "Expense"),
+        ("Dates", "📅", "Dates"),
+        ("Budget Tracker", "📊", "Budget"),
+        ("Friends", "👥", "Friends"),
+        ("Analytics", "📈", "Stats"),
+        ("Profile", "👤", "Profile"),
     ]
 
-    nav_links_html = ""
-    for page, icon_class, label in nav_items:
-        is_active = (current_page == page)
-        active_class = "active" if is_active else ""
-        nav_links_html += f'<a href="?page={page}" target="_self" class="nav-item {active_class}"><i class="{icon_class}"></i><span>{label}</span></a>'
+    # Create a special container for mobile navigation
+    st.markdown('<div class="mobile-nav-wrapper">', unsafe_allow_html=True)
 
-    st.markdown(f'<div class="bottom-nav-container">{nav_links_html}</div>', unsafe_allow_html=True)
+    # Create a container for navigation buttons
+    cols = st.columns(len(nav_items))
+
+    for idx, (page, icon, label) in enumerate(nav_items):
+        with cols[idx]:
+            # Use a unique key for each button
+            if st.button(
+                f"{icon}\n{label}",
+                key=f"mobile_nav_{page}",
+                use_container_width=True,
+                type="primary" if current_page == page else "secondary"
+            ):
+                st.session_state.current_page = page
+                st.rerun()
+
+    st.markdown('</div>', unsafe_allow_html=True)
+
+    # Add CSS to style the mobile nav buttons
+    st.markdown("""
+    <style>
+        .mobile-nav-wrapper {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 8px 4px 35px 4px;
+            z-index: 99999;
+            border-radius: 16px 16px 0 0;
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .mobile-nav-wrapper {
+                display: block !important;
+            }
+
+            .mobile-nav-wrapper [data-testid="column"] {
+                padding: 0 2px !important;
+            }
+
+            .mobile-nav-wrapper button {
+                font-size: 0.65rem !important;
+                padding: 8px 2px !important;
+                white-space: pre-line !important;
+                line-height: 1.2 !important;
+                min-height: 60px !important;
+            }
+        }
+
+        /* Hide Streamlit footer on mobile */
+        @media (max-width: 768px) {
+            footer { display: none !important; }
+            .stDeployButton { display: none !important; }
+        }
+    </style>
+    """, unsafe_allow_html=True)
 
 
 def render_sidebar(user: dict):
@@ -417,18 +425,10 @@ def render_main_content(user: dict):
 
 
 def handle_query_params():
-    """Handle page navigation via query parameters for mobile."""
-    try:
-        if hasattr(st, 'query_params'):
-            if 'page' in st.query_params:
-                page = st.query_params['page']
-                if page in ["Dashboard", "Expenses", "Dates", "Budget Tracker", "Friends", "Analytics", "Profile"]:
-                    st.session_state.current_page = page
-                # Clear query params to prevent repeated processing
-                st.query_params.clear()
-    except Exception:
-        # Silently handle query param errors
-        pass
+    """Handle page navigation via query parameters - disabled to prevent conflicts."""
+    # This function is disabled because we're using session state for navigation
+    # Query params should only be used for authentication (verify email, etc.)
+    pass
 
 
 def main():
