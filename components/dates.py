@@ -109,11 +109,11 @@ def render_upcoming_reminders(user: dict, db: DatabaseManager):
         
         btn_cols = st.columns([1, 1, 4])
         with btn_cols[0]:
-            if st.button("✓ Done", key=f"done_{reminder_id}"):
+            if st.button("Done", key=f"done_{reminder_id}"):
                 db.update_reminder_status(reminder_id, 'completed')
                 st.rerun()
         with btn_cols[1]:
-            if st.button("🗑", key=f"del_up_{reminder_id}"):
+            if st.button("Delete", key=f"del_up_{reminder_id}"):
                 db.delete_reminder(reminder_id)
                 st.rerun()
         
@@ -178,18 +178,18 @@ def render_all_reminders(user: dict, db: DatabaseManager):
         
         with btn_cols[0]:
             if reminder.get('status') == 'pending':
-                if st.button("✓", key=f"comp_{reminder_id}", help="Complete"):
+                if st.button("Complete", key=f"comp_{reminder_id}", help="Complete"):
                     db.update_reminder_status(reminder_id, 'completed')
                     st.rerun()
         
         with btn_cols[1]:
             if reminder.get('status') != 'cancelled':
-                if st.button("✕", key=f"canc_{reminder_id}", help="Cancel"):
+                if st.button("Cancel", key=f"canc_{reminder_id}", help="Cancel"):
                     db.update_reminder_status(reminder_id, 'cancelled')
                     st.rerun()
         
         with btn_cols[2]:
-            if st.button("🗑", key=f"del_all_{reminder_id}", help="Delete"):
+            if st.button("Delete", key=f"del_all_{reminder_id}", help="Delete"):
                 db.delete_reminder(reminder_id)
                 st.rerun()
         
