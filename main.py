@@ -22,6 +22,7 @@ st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
     @import url('https://cdn.lineicons.com/3.0/lineicons.css');
+    @import url('https://cdn.lineicons.com/3.0/lineicons.css');
     
     *, html, body, [class*="st-"], .stApp, .stMarkdown, p, span, div, label, button, input, textarea, select, h1, h2, h3, h4, h5, h6 {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -270,7 +271,7 @@ st.markdown("""
     /* Show mobile elements on mobile */
     @media (max-width: 768px) {
         .mobile-top-bar { display: flex !important; }
-        .bottom-nav-container { display: flex !important; }
+        .bottom-nav-container { display: block !important; }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -284,18 +285,6 @@ def initialize_session_state():
     if 'current_page' not in st.session_state:
         st.session_state.current_page = "Dashboard"
 
-def handle_query_params():
-    """Handle page navigation via query parameters for mobile."""
-    if hasattr(st, 'query_params'):
-        params = st.query_params
-        page_from_query = params.get("page")
-        
-        if page_from_query and page_from_query != st.session_state.get('current_page'):
-            valid_pages = ["Dashboard", "Expenses", "Dates", "Budget Tracker", "Friends", "Analytics", "Profile"]
-            if page_from_query in valid_pages:
-                st.session_state.current_page = page_from_query
-                st.query_params.clear()
-                st.rerun()
 
 def render_mobile_top_bar(user: dict):
     """Render mobile top bar"""
@@ -333,120 +322,382 @@ def render_mobile_top_bar(user: dict):
 
 
 def render_mobile_bottom_nav():
+
+
     """Render mobile bottom navigation using HTML links and query params."""
+
+
     current_page = st.session_state.get('current_page', 'Dashboard')
+
+
     
+
+
     nav_items = [
+
+
         ("Dashboard", "lni lni-grid-alt", "Home"),
+
+
         ("Expenses", "lni lni-coin", "Expense"),
+
+
         ("Dates", "lni lni-calendar", "Dates"),
+
+
         ("Budget Tracker", "lni lni-calculator", "Budget"),
+
+
         ("Friends", "lni lni-users", "Friends"),
+
+
         ("Analytics", "lni lni-stats-up", "Stats"),
+
+
         ("Profile", "lni lni-user", "Profile"),
+
+
     ]
+
+
     
+
+
     nav_links_html = ""
+
+
     for page, icon_class, label in nav_items:
+
+
         is_active = (current_page == page)
+
+
         active_class = "active" if is_active else ""
+
+
         nav_links_html += f"""
+
+
             <a href="?page={page}" target="_self" class="nav-item {active_class}">
+
+
                 <i class="{icon_class}"></i>
+
+
                 <span>{label}</span>
+
+
             </a>
+
+
         """
+
+
     
+
+
     st.markdown(f'<div class="bottom-nav-container">{nav_links_html}</div>', unsafe_allow_html=True)
 
 
+
+
+
+
+
+
 def render_sidebar(user: dict):
+
+
     """Render desktop sidebar"""
+
+
     st.sidebar.markdown("""
+
+
         <div style="padding: 0 0 8px 0;">
+
+
             <h1 style="font-size: 1.8rem; font-weight: 700; margin: 0;
+
+
                 background: linear-gradient(135deg, #ffffff 0%, #3b82f6 100%);
+
+
                 -webkit-background-clip: text; -webkit-text-fill-color: transparent;">OSCAR</h1>
+
+
             <p style="color: rgba(255,255,255,0.4); font-size: 0.7rem; 
+
+
                 letter-spacing: 0.15em; text-transform: uppercase; margin-top: 4px;">
+
+
                 Track. Save. Review.</p>
+
+
         </div>
+
+
     """, unsafe_allow_html=True)
+
+
     
+
+
     st.sidebar.markdown("---")
+
+
     
+
+
     for item in ["Dashboard", "Expenses", "Dates", "Budget Tracker", "Friends", "Analytics", "Profile"]:
+
+
         if st.sidebar.button(item, key=f"nav_{item}", use_container_width=True):
+
+
             st.session_state.current_page = item
+
+
             st.rerun()
+
+
     
+
+
     st.sidebar.markdown('<div style="height: 40px;"></div>', unsafe_allow_html=True)
+
+
     st.sidebar.markdown("---")
+
+
     
+
+
     if user:
+
+
         full_name = user.get('full_name', 'User')
+
+
         email = user.get('email', '')
+
+
         initial = full_name[0].upper() if full_name else 'U'
+
+
         
+
+
         st.sidebar.markdown(f'''
+
+
             <div style="display: flex; align-items: center; gap: 12px; padding: 8px 0; margin-bottom: 8px;">
+
+
                 <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #3b82f6, #6366f1); 
+
+
                     border-radius: 50%; display: flex; align-items: center; justify-content: center; 
+
+
                     color: white; font-weight: 600; font-size: 14px;">{initial}</div>
+
+
                 <div>
+
+
                     <p style="color: rgba(255,255,255,0.85); font-size: 0.85rem; margin: 0; font-weight: 500;">{full_name}</p>
+
+
                     <p style="color: rgba(255,255,255,0.45); font-size: 0.7rem; margin: 0;">{email}</p>
+
+
                 </div>
+
+
             </div>
+
+
         ''', unsafe_allow_html=True)
+
+
     
+
+
     if st.sidebar.button("Logout", use_container_width=True, key="logout_btn"):
+
+
         st.session_state.authenticated = False
+
+
         st.session_state.user = None
+
+
         st.session_state.current_page = "Dashboard"
+
+
         st.rerun()
+
+
     
+
+
     return st.session_state.current_page
 
 
+
+
+
+
+
+
 def render_main_content(user: dict):
+
+
     db = DatabaseManager()
+
+
     
+
+
     # Mobile top bar
+
+
     render_mobile_top_bar(user)
+
+
     
+
+
     # Desktop sidebar
+
+
     page = render_sidebar(user)
+
+
     
+
+
     # Page content
+
+
     if page == "Dashboard":
+
+
         render_dashboard(user, db)
+
+
     elif page == "Expenses":
+
+
         render_expenses(user, db)
+
+
     elif page == "Dates":
+
+
         render_dates(user, db)
+
+
     elif page == "Budget Tracker":
+
+
         render_budget(user, db)
+
+
     elif page == "Friends":
+
+
         render_friends(user, db)
+
+
     elif page == "Analytics":
+
+
         render_analytics(user, db)
+
+
     elif page == "Profile":
+
+
         render_profile(user, db)
+
+
     
+
+
     # Mobile bottom navigation
+
+
     render_mobile_bottom_nav()
 
 
+
+
+
+
+
+
+def handle_query_params():
+
+
+    """Handle page navigation via query parameters for mobile."""
+
+
+    if hasattr(st, 'query_params'):
+
+
+        if 'page' in st.query_params:
+
+
+            page = st.query_params['page']
+
+
+            if page in ["Dashboard", "Expenses", "Dates", "Budget Tracker", "Friends", "Analytics", "Profile"]:
+
+
+                st.session_state.current_page = page
+
+
+            st.query_params.clear()
+
+
+
+
+
 def main():
+
+
     initialize_session_state()
+
+
     handle_query_params()
+
+
     
+
+
     if not st.session_state.authenticated:
+
+
         render_auth()
+
+
     else:
+
+
         render_main_content(st.session_state.user)
 
 
+
+
+
+
+
+
 if __name__ == "__main__":
+
+
     main()
+
