@@ -21,6 +21,7 @@ st.set_page_config(
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+    @import url('https://cdn.lineicons.com/3.0/lineicons.css');
     
     *, html, body, [class*="st-"], .stApp, .stMarkdown, p, span, div, label, button, input, textarea, select, h1, h2, h3, h4, h5, h6 {
         font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif !important;
@@ -176,7 +177,7 @@ st.markdown("""
         
         .block-container {
             padding-top: 70px !important;
-            padding-bottom: 20px !important;
+            padding-bottom: 80px !important; /* Increased padding for nav bar */
             padding-left: 8px !important;
             padding-right: 8px !important;
             max-width: 100% !important;
@@ -213,43 +214,50 @@ st.markdown("""
         [data-testid="stForm"] { padding: 10px !important; border-radius: 8px !important; }
         [role="option"] { padding: 6px 8px !important; font-size: 0.8rem !important; }
         .stAlert { padding: 6px 8px !important; border-radius: 6px !important; }
-        
-        /* FORCE HORIZONTAL NAV BAR */
-        .bottom-nav-container [data-testid="stHorizontalBlock"] {
-            display: flex !important;
-            flex-direction: row !important;
-            flex-wrap: nowrap !important;
-            gap: 2px !important;
-            width: 100% !important;
+
+        .bottom-nav-container {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: auto;
+            background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 5px 25px 5px;
+            z-index: 99999;
+            display: flex;
+            justify-content: space-around;
+            border-radius: 16px 16px 0 0;
         }
         
-        .bottom-nav-container [data-testid="column"] {
-            flex: 1 !important;
-            width: auto !important;
-            min-width: 0 !important;
-            padding: 0 1px !important;
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-decoration: none;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.5rem;
+            flex: 1;
+            padding: 4px 0;
+            background: transparent;
+            border-radius: 8px;
+            transition: all 0.2s ease-in-out;
         }
         
-        .bottom-nav-container .stButton {
-            width: 100% !important;
+        .nav-item:hover {
+            background: rgba(255, 144, 0, 0.15);
+            color: #FF9000;
         }
         
-        .bottom-nav-container .stButton > button {
-            width: 100% !important;
-            background: transparent !important;
-            border: none !important;
-            color: rgba(255, 255, 255, 0.6) !important;
-            padding: 6px 2px !important;
-            font-size: 0.5rem !important;
-            min-height: 52px !important;
-            line-height: 1.3 !important;
-            white-space: pre-line !important;
-            border-radius: 8px !important;
+        .nav-item.active {
+            background: rgba(255, 144, 0, 0.2);
+            color: #FF9000;
         }
         
-        .bottom-nav-container .stButton > button:hover {
-            background: rgba(255, 144, 0, 0.15) !important;
-            color: #FF9000 !important;
+        .nav-item i {
+            font-size: 1.5rem;
+            margin-bottom: 4px;
         }
     }
     
@@ -262,7 +270,7 @@ st.markdown("""
     /* Show mobile elements on mobile */
     @media (max-width: 768px) {
         .mobile-top-bar { display: flex !important; }
-        .bottom-nav-container { display: block !important; }
+        .bottom-nav-container { display: flex !important; }
     }
 </style>
 """, unsafe_allow_html=True)
@@ -276,6 +284,18 @@ def initialize_session_state():
     if 'current_page' not in st.session_state:
         st.session_state.current_page = "Dashboard"
 
+def handle_query_params():
+    """Handle page navigation via query parameters for mobile."""
+    if hasattr(st, 'query_params'):
+        params = st.query_params
+        page_from_query = params.get("page")
+        
+        if page_from_query and page_from_query != st.session_state.get('current_page'):
+            valid_pages = ["Dashboard", "Expenses", "Dates", "Budget Tracker", "Friends", "Analytics", "Profile"]
+            if page_from_query in valid_pages:
+                st.session_state.current_page = page_from_query
+                st.query_params.clear()
+                st.rerun()
 
 def render_mobile_top_bar(user: dict):
     """Render mobile top bar"""
@@ -313,62 +333,31 @@ def render_mobile_top_bar(user: dict):
 
 
 def render_mobile_bottom_nav():
-    """Render mobile bottom navigation - HORIZONTAL BAR"""
-    
+    """Render mobile bottom navigation using HTML links and query params."""
     current_page = st.session_state.get('current_page', 'Dashboard')
     
-    # Add spacing before nav
-    st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
-    
-    # Start nav container with class for CSS targeting
-    st.markdown("""
-    <div class="bottom-nav-container" style="
-        background: linear-gradient(180deg, #1a1f2e 0%, #0f1419 100%);
-        border-top: 1px solid rgba(255, 255, 255, 0.1);
-        padding: 10px 5px 45px 5px;
-        margin: 0 -8px;
-        border-radius: 16px 16px 0 0;
-    ">
-    """, unsafe_allow_html=True)
-    
-    # Navigation items
     nav_items = [
-        ("Dashboard", "🏠", "Home"),
-        ("Expenses", "💰", "Expense"),
-        ("Dates", "📅", "Dates"),
-        ("Budget Tracker", "💳", "Budget"),
-        ("Friends", "👥", "Friends"),
-        ("Analytics", "📊", "Stats"),
-        ("Profile", "👤", "Profile"),
+        ("Dashboard", "lni lni-grid-alt", "Home"),
+        ("Expenses", "lni lni-coin", "Expense"),
+        ("Dates", "lni lni-calendar", "Dates"),
+        ("Budget Tracker", "lni lni-calculator", "Budget"),
+        ("Friends", "lni lni-users", "Friends"),
+        ("Analytics", "lni lni-stats-up", "Stats"),
+        ("Profile", "lni lni-user", "Profile"),
     ]
     
-    # Create columns for horizontal layout
-    cols = st.columns(7)
+    nav_links_html = ""
+    for page, icon_class, label in nav_items:
+        is_active = (current_page == page)
+        active_class = "active" if is_active else ""
+        nav_links_html += f"""
+            <a href="?page={page}" target="_self" class="nav-item {active_class}">
+                <i class="{icon_class}"></i>
+                <span>{label}</span>
+            </a>
+        """
     
-    for idx, (page, icon, label) in enumerate(nav_items):
-        with cols[idx]:
-            is_active = (current_page == page)
-            
-            # Style active button differently
-            if is_active:
-                st.markdown(f"""
-                <style>
-                @media (max-width: 768px) {{
-                    .bottom-nav-container [data-testid="column"]:nth-child({idx + 1}) .stButton > button {{
-                        background: rgba(255, 144, 0, 0.2) !important;
-                        color: #FF9000 !important;
-                    }}
-                }}
-                </style>
-                """, unsafe_allow_html=True)
-            
-            # Button with icon on top, label below
-            if st.button(f"{icon}\n{label}", key=f"bnav_{page}", use_container_width=True):
-                st.session_state.current_page = page
-                st.rerun()
-    
-    # Close nav container
-    st.markdown("</div>", unsafe_allow_html=True)
+    st.markdown(f'<div class="bottom-nav-container">{nav_links_html}</div>', unsafe_allow_html=True)
 
 
 def render_sidebar(user: dict):
@@ -451,6 +440,7 @@ def render_main_content(user: dict):
 
 def main():
     initialize_session_state()
+    handle_query_params()
     
     if not st.session_state.authenticated:
         render_auth()
