@@ -123,12 +123,12 @@ def render_reminders(user: dict, db: DatabaseManager):
                 with rem_col3:
                     mark_col, del_col = st.columns(2)
                     with mark_col:
-                        if st.button("✓", key=f"mark_{reminder['id']}", help="Mark as done"):
+                        if st.button("Done", key=f"mark_past_{reminder['id']}", help="Mark as done"):
                             if db.mark_reminder_complete(user['id'], reminder['id']):
                                 st.success("Marked complete!")
                                 st.rerun()
                     with del_col:
-                        if st.button("✕", key=f"del_{reminder['id']}", help="Delete"):
+                        if st.button("Delete", key=f"del_past_{reminder['id']}", help="Delete"):
                             if db.delete_reminder(user['id'], reminder['id']):
                                 st.success("Reminder deleted!")
                                 st.rerun()
@@ -158,12 +158,12 @@ def render_reminders(user: dict, db: DatabaseManager):
                 with rem_col3:
                     mark_col, del_col = st.columns(2)
                     with mark_col:
-                        if st.button("✓", key=f"mark_{reminder['id']}", help="Mark as done"):
+                        if st.button("Done", key=f"mark_upcoming_{reminder['id']}", help="Mark as done"):
                             if db.mark_reminder_complete(user['id'], reminder['id']):
                                 st.success("Marked complete!")
                                 st.rerun()
                     with del_col:
-                        if st.button("✕", key=f"del_{reminder['id']}", help="Delete"):
+                        if st.button("Delete", key=f"del_upcoming_{reminder['id']}", help="Delete"):
                             if db.delete_reminder(user['id'], reminder['id']):
                                 st.success("Reminder deleted!")
                                 st.rerun()
