@@ -15,8 +15,12 @@ except ImportError:
     HAS_POSTGRES = False
 
 import sqlite3
+import time
 
 logger = logging.getLogger(__name__)
+
+_MAX_RETRIES = 3
+_RETRY_BASE_DELAY = 1
 
 
 def get_database_url():
@@ -32,26 +36,51 @@ def get_database_url():
 
 class DatabaseManager:
     """Manages all database operations with PostgreSQL/SQLite support."""
-    
+
     def __init__(self, db_name: str = None):
         """Initialize database manager."""
         self.database_url = get_database_url()
         self.use_postgres = HAS_POSTGRES and self.database_url is not None
-        
+        self._schema_initialized = False
+
         if not self.use_postgres:
             # Fall back to SQLite for local development
             self.db_name = db_name or "oscar.db"
             logger.info("Using SQLite database")
         else:
             logger.info("Using PostgreSQL database")
-        
-        self.init_database()
-    
+
+        try:
+            self.init_database()
+            self._schema_initialized = True
+        except Exception as e:
+            logger.error(f"Database initialization failed (will retry on first query): {e}")
+
+    def _ensure_schema(self):
+        """Ensure schema is initialized, retrying if it failed at startup."""
+        if not self._schema_initialized:
+            self.init_database()
+            self._schema_initialized = True
+
+    def _connect_postgres(self):
+        """Get a PostgreSQL connection with retry logic."""
+        last_error = None
+        for attempt in range(_MAX_RETRIES):
+            try:
+                return psycopg2.connect(self.database_url, connect_timeout=10)
+            except psycopg2.OperationalError as e:
+                last_error = e
+                if attempt < _MAX_RETRIES - 1:
+                    delay = _RETRY_BASE_DELAY * (2 ** attempt)
+                    logger.warning(f"Database connection attempt {attempt + 1} failed, retrying in {delay}s...")
+                    time.sleep(delay)
+        raise last_error
+
     @contextmanager
     def get_connection(self):
         """Get database connection - works with both PostgreSQL and SQLite."""
         if self.use_postgres:
-            conn = psycopg2.connect(self.database_url)
+            conn = self._connect_postgres()
             try:
                 yield conn
                 conn.commit()
@@ -69,13 +98,15 @@ class DatabaseManager:
             finally:
                 conn.close()
     
-    def execute_query(self, query: str, params: tuple = None, fetch: bool = False, 
+    def execute_query(self, query: str, params: tuple = None, fetch: bool = False,
                       fetchone: bool = False):
         """Execute a query with automatic parameter placeholder conversion."""
+        self._ensure_schema()
+
         # Convert ? to %s for PostgreSQL
         if self.use_postgres:
             query = query.replace('?', '%s')
-        
+
         with self.get_connection() as conn:
             if self.use_postgres:
                 cursor = conn.cursor(cursor_factory=RealDictCursor)

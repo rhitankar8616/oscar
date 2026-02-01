@@ -2,9 +2,23 @@ import streamlit as st
 from auth.authentication import AuthManager
 from auth.email_service import EmailService
 
-# Initialize managers
-auth_manager = AuthManager()
-email_service = EmailService()
+# Lazy initialization to avoid crashing on import when DB is temporarily unavailable
+_auth_manager = None
+_email_service = None
+
+
+def get_auth_manager():
+    global _auth_manager
+    if _auth_manager is None:
+        _auth_manager = AuthManager()
+    return _auth_manager
+
+
+def get_email_service():
+    global _email_service
+    if _email_service is None:
+        _email_service = EmailService()
+    return _email_service
 
 
 def render_auth():
@@ -15,16 +29,19 @@ def render_auth():
     if 'verify' in query_params and 'email' in query_params:
         verification_token = query_params['verify']
         email = query_params['email']
-        
-        # Verify the user
-        success = auth_manager.verify_email(email, verification_token)
-        
-        if success:
-            st.success("Email verified successfully! You can now login.")
-            # Clear query parameters
-            st.query_params.clear()
-        else:
-            st.error("Invalid or expired verification link.")
+
+        try:
+            # Verify the user
+            success = get_auth_manager().verify_email(email, verification_token)
+
+            if success:
+                st.success("Email verified successfully! You can now login.")
+                st.query_params.clear()
+            else:
+                st.error("Invalid or expired verification link.")
+                st.query_params.clear()
+        except Exception:
+            st.error("Unable to connect to the database. Please try again later.")
             st.query_params.clear()
     
     # Center the auth form
@@ -71,22 +88,25 @@ def render_login():
             if not email or not password:
                 st.error("Please enter both email and password")
             else:
-                user = auth_manager.login_user(email, password)
-                if user:
-                    st.session_state.authenticated = True
-                    st.session_state.user = user
-                    st.success("Login successful!")
-                    st.rerun()
-                else:
-                    # Check if user exists but is unverified
-                    from database.db_manager import DatabaseManager
-                    db = DatabaseManager()
-                    existing_user = db.get_user_by_email(email)
-                    
-                    if existing_user and not existing_user['is_verified']:
-                        st.error("Please verify your email before logging in. Check your inbox for the verification link.")
+                try:
+                    user = get_auth_manager().login_user(email, password)
+                    if user:
+                        st.session_state.authenticated = True
+                        st.session_state.user = user
+                        st.success("Login successful!")
+                        st.rerun()
                     else:
-                        st.error("Invalid email or password")
+                        # Check if user exists but is unverified
+                        from database.db_manager import DatabaseManager
+                        db = DatabaseManager()
+                        existing_user = db.get_user_by_email(email)
+
+                        if existing_user and not existing_user['is_verified']:
+                            st.error("Please verify your email before logging in. Check your inbox for the verification link.")
+                        else:
+                            st.error("Invalid email or password")
+                except Exception:
+                    st.error("Unable to connect to the database. Please try again later.")
 
 
 def render_register():
@@ -111,24 +131,27 @@ def render_register():
             elif '@' not in email or '.' not in email:
                 st.error("Please enter a valid email address")
             else:
-                # Register user
-                result = auth_manager.register_user(email, password, full_name)
-                
-                if result:
-                    # Send verification email
-                    try:
-                        email_sent = email_service.send_verification_email(
-                            email,
-                            result['verification_token']
-                        )
-                        if email_sent:
-                            st.success("Account created successfully!")
-                            st.info("Please check your email to verify your account, then login.")
-                        else:
-                            st.warning("Account created but couldn't send verification email. Please check your email configuration.")
-                            st.info("You may need to contact support for manual verification.")
-                    except Exception as e:
-                        st.warning(f"Account created but couldn't send verification email. Error: {str(e)}")
-                        st.info("Please contact support for manual verification.")
-                else:
-                    st.error("Email already exists or registration failed. Please try a different email.")
+                try:
+                    # Register user
+                    result = get_auth_manager().register_user(email, password, full_name)
+
+                    if result:
+                        # Send verification email
+                        try:
+                            email_sent = get_email_service().send_verification_email(
+                                email,
+                                result['verification_token']
+                            )
+                            if email_sent:
+                                st.success("Account created successfully!")
+                                st.info("Please check your email to verify your account, then login.")
+                            else:
+                                st.warning("Account created but couldn't send verification email. Please check your email configuration.")
+                                st.info("You may need to contact support for manual verification.")
+                        except Exception as e:
+                            st.warning(f"Account created but couldn't send verification email. Error: {str(e)}")
+                            st.info("Please contact support for manual verification.")
+                    else:
+                        st.error("Email already exists or registration failed. Please try a different email.")
+                except Exception:
+                    st.error("Unable to connect to the database. Please try again later.")
