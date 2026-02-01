@@ -5,12 +5,18 @@ from database.db_manager import DatabaseManager
 
 def render_dashboard(user: dict, db: DatabaseManager):
     """Render dashboard page"""
-    
+
     st.markdown(f"## Welcome, {user.get('full_name', 'User')}!")
-    
+
     monthly_budget = user.get('monthly_budget', 0) or 0
-    current_month = datetime.now().strftime("%Y-%m")
-    expenses = db.get_user_expenses(user['id'], month=current_month)
+
+    # Month selector - default to current month
+    months = []
+    for i in range(6):
+        m = (datetime.now().replace(day=1) - pd.DateOffset(months=i))
+        months.append(m.strftime("%Y-%m"))
+    selected_month = st.selectbox("Month", months, key="dash_month")
+    expenses = db.get_user_expenses(user['id'], month=selected_month)
     
     total_spent = sum(exp['amount'] for exp in expenses) if expenses else 0
     remaining = monthly_budget - total_spent
@@ -42,7 +48,7 @@ def render_dashboard(user: dict, db: DatabaseManager):
             <p style="color: white; font-size: 1.1rem; font-weight: 700; margin: 0;">${monthly_budget:,.2f}</p>
         </div>
         <div style="flex: 1 1 45%; min-width: 140px; padding: 12px; background: rgba(30, 45, 65, 0.5); border-radius: 10px; border: 1px solid rgba(255, 255, 255, 0.05);">
-            <p style="color: rgba(255,255,255,0.5); font-size: 0.6rem; text-transform: uppercase; margin: 0 0 4px 0;">Spent This Month</p>
+            <p style="color: rgba(255,255,255,0.5); font-size: 0.6rem; text-transform: uppercase; margin: 0 0 4px 0;">Spent ({selected_month})</p>
             <p style="color: white; font-size: 1.1rem; font-weight: 700; margin: 0;">${total_spent:,.2f}</p>
             <p style="color: rgba(255,255,255,0.4); font-size: 0.55rem; margin: 2px 0 0 0;">{num_transactions} transactions</p>
         </div>
